@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Kappa
+  m_Controller: {fileID: 9100000, guid: 9939615c5a6340d49ac748ee4ceea68d, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 969ba7a09897fa04fa2e959a104a3ebc, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dbf7fee94e209734d8a40e78afa6c2f3, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 99bfe34ad2fb8e443b4453040af2d03f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 86cecaaaa4adf3f4e9a71ae7b30903b3, type: 2}

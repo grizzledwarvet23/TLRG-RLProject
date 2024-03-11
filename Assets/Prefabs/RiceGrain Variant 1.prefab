@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5883767284189020628
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3392913094900556150, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: grainType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556154, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1867201728, guid: 7a377ab8bbd5fd04bb2d0a1856c78cb0, type: 3}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.1037908
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.7945055
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556155, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392913094900556157, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
+      propertyPath: m_Name
+      value: RiceGrain Variant 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 973bfb101a1be754a8be76f9e4493b58, type: 3}
