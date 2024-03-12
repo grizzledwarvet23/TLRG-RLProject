@@ -1,0 +1,42 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1710218931",
+        "python_version": "3.8.10 (tags/v3.8.10:3d8993a, May  3 2021, 11:48:03) [MSC v.1928 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\zayaa\\Unity Projects\\OneButtonJam\\venv\\Scripts\\mlagents-learn --run-id=Test3",
+        "mlagents_version": "0.29.0",
+        "mlagents_envs_version": "0.29.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "2.2.1+cpu",
+        "numpy_version": "1.21.2",
+        "end_time_seconds": "1710218993"
+    },
+    "total": 62.14188,
+    "count": 1,
+    "self": 0.005039699999990432,
+    "children": {
+        "run_training.setup": {
+            "total": 0.02721700000000027,
+            "count": 1,
+            "self": 0.02721700000000027
+        },
+        "TrainerController.start_learning": {
+            "total": 62.10962330000001,
+            "count": 1,
+            "self": 0.00014249999999549345,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 62.10946270000001,
+                    "count": 1,
+                    "self": 62.10946270000001
+                },
+                "TrainerController._save_models": {
+                    "total": 1.810000000546097e-05,
+                    "count": 1,
+                    "self": 1.810000000546097e-05
+                }
+            }
+        }
+    }
+}

@@ -69,7 +69,23 @@ public class PlayerRL : Agent
     private int actionChoice = 5;
     private Vector2 mouseWorldPosition;
 
+    public static PlayerRL instance = null;
 
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            //do not destroy on load:\
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (instance != this)
+        {
+            Debug.Log("SEE YA!");
+            Destroy(gameObject);
+            return;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -80,19 +96,22 @@ public class PlayerRL : Agent
         canShootEarth = true;
         maxHealth = health;
         rockCountText.text = "x " + (3 - rockCount).ToString() + "/3";
+        rockShadow.SetActive(false);
+        thunderShadow.SetActive(false);
         // StartCoroutine(selectAction());
         // StartCoroutine(generateMousePosition());
     }
 
     public override void Initialize()
     {
-        // Debug.Log("INITIALIZE");
+        Debug.Log("INITIALIZED " + gameObject);
         //do nothing
     }
 
     public override void OnEpisodeBegin()
     {
-        // Debug.Log("ON EPISODE BEGIN");
+
+        Debug.Log("Episode Number: " + CompletedEpisodes);
         //do nothing
     }
 
@@ -101,7 +120,37 @@ public class PlayerRL : Agent
         // Debug.Log("COLLECTING OBSERVATIONS");
         sensor.AddObservation(health);
         sensor.AddObservation(rockCount);
+        //another observation will be to the closest enemy's position. if no enemies, then just add 0,0:
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        if(enemies.Length == 0) {
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+        } else {
+            float minDistance = float.MaxValue;
+            Vector3 closestEnemyPosition = new Vector3(0, 0, 0);
+            foreach(GameObject enemy in enemies) {
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if(distance < minDistance) {
+                    minDistance = distance;
+                    closestEnemyPosition = enemy.transform.position;
+                }
+            }
+            sensor.AddObservation(closestEnemyPosition.x);
+            sensor.AddObservation(closestEnemyPosition.y);
+        }
+
+        //now add observation of crop position:
+        //find the only child of the gameobject called "CropSpawn." the y position of this child will be the observation. default value is 0:
+        GameObject cropSpawn = GameObject.Find("CropSpawn");
+        if(cropSpawn.transform.childCount == 0) {   
+            sensor.AddObservation(0);
+        } else {
+            sensor.AddObservation(cropSpawn.transform.GetChild(0).position.y);
+        }
+
+        //print the observations:
         
+    
         // Debug.Log(sensor);
     }
 
@@ -114,6 +163,9 @@ public class PlayerRL : Agent
         //now get mouse position from continuous actions
         float mouseX = actionBuffers.ContinuousActions[0];
         float mouseY = actionBuffers.ContinuousActions[1];
+
+        mouseX = ScaleAction(mouseX, -8.26f, 8.31f);
+        mouseY = ScaleAction(mouseY, -4.54f, 4.54f);
 
         //water = 0, fire = 1, earth = 2, thunder = 3, nothing = 4
         actionChoice = actionType;
@@ -167,9 +219,25 @@ public class PlayerRL : Agent
     // Update is called once per frame
     void Update()
     {
-        RequestDecision();
         // Convert the mouse position to world coordinates
-
+        if(mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
+        if(rockShadow == null)
+        {
+            rockShadow = GameObject.Find("RockShadow");
+            rockShadow.SetActive(false);
+        }
+        if(thunderShadow == null)
+        {
+            thunderShadow = GameObject.Find("ThunderShadow");
+            thunderShadow.SetActive(false);
+        }
+        if(healthBarFill == null)
+        {
+            healthBarFill = GameObject.Find("HealthbarFill").GetComponent<Image>();
+        }
         Vector2 mousePosition = mainCamera.WorldToScreenPoint(mouseWorldPosition);
 
 
@@ -216,6 +284,15 @@ public class PlayerRL : Agent
                         break;
                 }
                 hand.sprite = sprites[actionChoice]; //sprite/visual changes.
+
+                if(elementIcons[0] == null)
+                {
+                    //elementIcons[0] is game object "Water" whose parent is called "ElementIcons":
+                    elementIcons[0] = GameObject.Find("WaterIcon").GetComponent<Image>();
+                    elementIcons[1] = GameObject.Find("FireIcon").GetComponent<Image>();
+                    elementIcons[2] = GameObject.Find("RockIcon").GetComponent<Image>();
+                    elementIcons[3] = GameObject.Find("ThunderIcon").GetComponent<Image>();
+                }
                 for(int i = 0; i < elementIcons.Length; i++) {
                     if(i == actionChoice) {
                         elementIcons[i].color = new Color(1, 1, 1, highOpacity / 255.0f);
@@ -277,10 +354,19 @@ public class PlayerRL : Agent
     public void TakeDamage(int dmg) {
         health -= dmg;
         healthBarFill.fillAmount = (float)health / (float)maxHealth;
+
+        AddRewardExternal(-1f);
         if(health <= 0) {
             GameManager.numCorrect = 0;
             GameManager.numIncorrect = 0;
-            SceneManager.LoadScene("LoseScreen");
+
+            AddRewardExternal(-100f);
+            //PLAYER DIES!
+            EndEpisode();
+
+            //set health back to max
+            health = maxHealth;
+            SceneManager.LoadScene("GameSceneRL");
         }
     }
 

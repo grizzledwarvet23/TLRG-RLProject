@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    },
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 27911,
+                "file_path": "results\\Run\\PlayerRL\\PlayerRL-27911.onnx",
+                "reward": 12.333333333333334,
+                "creation_time": 1710261182.5047321,
+                "auxillary_file_paths": [
+                    "results\\Run\\PlayerRL\\PlayerRL-27911.pt"
+                ]
+            },
+            {
+                "steps": 28817,
+                "file_path": "results\\Run\\PlayerRL\\PlayerRL-28817.onnx",
+                "reward": 22.5,
+                "creation_time": 1710261255.521464,
+                "auxillary_file_paths": [
+                    "results\\Run\\PlayerRL\\PlayerRL-28817.pt"
+                ]
+            },
+            {
+                "steps": 39091,
+                "file_path": "results\\Run\\PlayerRL\\PlayerRL-39091.onnx",
+                "reward": null,
+                "creation_time": 1710261552.363495,
+                "auxillary_file_paths": [
+                    "results\\Run\\PlayerRL\\PlayerRL-39091.pt"
+                ]
+            },
+            {
+                "steps": 45986,
+                "file_path": "results\\Run\\PlayerRL\\PlayerRL-45986.onnx",
+                "reward": -69.84,
+                "creation_time": 1710262167.030561,
+                "auxillary_file_paths": [
+                    "results\\Run\\PlayerRL\\PlayerRL-45986.pt"
+                ]
+            },
+            {
+                "steps": 56267,
+                "file_path": "results\\Run\\PlayerRL\\PlayerRL-56267.onnx",
+                "reward": null,
+                "creation_time": 1710262990.1466117,
+                "auxillary_file_paths": [
+                    "results\\Run\\PlayerRL\\PlayerRL-56267.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 56267,
+            "file_path": "results\\Run\\PlayerRL.onnx",
+            "reward": null,
+            "creation_time": 1710262990.1466117,
+            "auxillary_file_paths": [
+                "results\\Run\\PlayerRL\\PlayerRL-56267.pt"
+            ]
+        }
+    }
+}
