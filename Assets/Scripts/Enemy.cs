@@ -124,12 +124,12 @@ public class Enemy : MonoBehaviour
     public void TakeDamage(float damage) {
         health -= damage;
         healthBar.fillAmount = health / maxHealth;
-        player.GetComponent<PlayerRL>().AddRewardExternal(100f);
+        // player.GetComponent<PlayerRL>().AddRewardExternal(5f); //kills only are rewarded.
 
         if (health <= 0) {
             if(player.GetComponent<PlayerRL>() != null)
             {
-                player.GetComponent<PlayerRL>().AddRewardExternal(10f);
+                player.GetComponent<PlayerRL>().AddRewardExternal(1f);
             }
             Destroy(gameObject);
         }

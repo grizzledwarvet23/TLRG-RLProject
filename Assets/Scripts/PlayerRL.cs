@@ -65,8 +65,8 @@ public class PlayerRL : Agent
 
     //4 boolean variables to represent the 4 possible actions:
 
-    private int previousAction = 5;
-    private int actionChoice = 5;
+    private int previousAction = 1; //both should be 5 to begin.
+    private int actionChoice = 1;
     private Vector2 mouseWorldPosition;
 
     public static PlayerRL instance = null;
@@ -81,7 +81,6 @@ public class PlayerRL : Agent
         }
         else if (instance != this)
         {
-            Debug.Log("SEE YA!");
             Destroy(gameObject);
             return;
         }
@@ -104,78 +103,97 @@ public class PlayerRL : Agent
 
     public override void Initialize()
     {
-        Debug.Log("INITIALIZED " + gameObject);
         //do nothing
     }
 
     public override void OnEpisodeBegin()
     {
-
-        Debug.Log("Episode Number: " + CompletedEpisodes);
+        water.GetComponent<ParticleSystem>().Stop();
         //do nothing
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // Debug.Log("COLLECTING OBSERVATIONS");
-        sensor.AddObservation(health);
-        sensor.AddObservation(rockCount);
+        // AddRewardExternal(1); //just over time
+
+
+        // sensor.AddObservation(health);
+        // sensor.AddObservation(rockCount);
+        // //now do position of each of the rocks, up to 3. default value will be 0,0:
+        // GameObject[] rocks = GameObject.FindGameObjectsWithTag("Earth");
+
+        // for(int i = 0; i < 3; i++) {
+        //     if(i < rocks.Length) {
+        //         sensor.AddObservation(rocks[i].transform.position.x - transform.position.x);
+        //         sensor.AddObservation(rocks[i].transform.position.y - transform.position.y);
+        //     } else {
+        //         sensor.AddObservation(0);
+        //         sensor.AddObservation(0);
+        //     }
+        // }
+
         //another observation will be to the closest enemy's position. if no enemies, then just add 0,0:
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        if(enemies.Length == 0) {
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-        } else {
-            float minDistance = float.MaxValue;
-            Vector3 closestEnemyPosition = new Vector3(0, 0, 0);
-            foreach(GameObject enemy in enemies) {
-                float distance = Vector3.Distance(transform.position, enemy.transform.position);
-                if(distance < minDistance) {
-                    minDistance = distance;
-                    closestEnemyPosition = enemy.transform.position;
+        //sort it by distance from player:
+        System.Array.Sort(enemies, delegate(GameObject a, GameObject b) {
+            return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
+        });
+
+        int enemiesCap = 5;
+        
+        if(enemies.Length > 0) {
+            string coordinates = "";
+            for(int i = 0; i < enemiesCap; i++) {
+                if(i < enemies.Length) {
+                    sensor.AddObservation(enemies[i].transform.position.x - transform.position.x);
+                    sensor.AddObservation(enemies[i].transform.position.y - transform.position.y);
+                    coordinates += (enemies[i].transform.position.x - transform.position.x) + ", " + (enemies[i].transform.position.y - transform.position.y) + ", ";
+                    // sensor.AddObservation(enemies[i].GetComponent<Enemy>().health);
+                } else {
+                    sensor.AddObservation(enemies[enemies.Length - 1].transform.position.x - transform.position.x);
+                    sensor.AddObservation(enemies[enemies.Length - 1].transform.position.y - transform.position.y);
+                    // sensor.AddObservation(enemies[0].GetComponent<Enemy>().health);
                 }
             }
-            sensor.AddObservation(closestEnemyPosition.x);
-            sensor.AddObservation(closestEnemyPosition.y);
+            //Debug.Log(coordinates);
+        }
+        else {
+            for(int i = 0; i < enemiesCap; i++) {
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                // sensor.AddObservation(0);
+            }
         }
 
-        //now add observation of crop position:
-        //find the only child of the gameobject called "CropSpawn." the y position of this child will be the observation. default value is 0:
-        GameObject cropSpawn = GameObject.Find("CropSpawn");
-        if(cropSpawn.transform.childCount == 0) {   
-            sensor.AddObservation(0);
-        } else {
-            sensor.AddObservation(cropSpawn.transform.GetChild(0).position.y);
-        }
 
-        //print the observations:
+
+
         
-    
-        // Debug.Log(sensor);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        // Debug.Log("ACTION RECEIVED");
         previousAction = actionChoice;
-        int actionType = actionBuffers.DiscreteActions[0];
+        // int actionType = actionBuffers.DiscreteActions[0];
 
         //now get mouse position from continuous actions
         float mouseX = actionBuffers.ContinuousActions[0];
         float mouseY = actionBuffers.ContinuousActions[1];
 
+        Debug.Log(mouseX + ", " + mouseY);
+        
         mouseX = ScaleAction(mouseX, -8.26f, 8.31f);
         mouseY = ScaleAction(mouseY, -4.54f, 4.54f);
 
         //water = 0, fire = 1, earth = 2, thunder = 3, nothing = 4
-        actionChoice = actionType;
+        // actionChoice = actionType;
+        actionChoice = 1;
         mouseWorldPosition = new Vector2(mouseX, mouseY);
     }
 
     //heuristic for testing. so discrete actions[0] will be based on w,a,s,d. continuous[0] will be the x position of the mouse, and continuous[1] will be the y position of the mouse:
     public override void Heuristic(in ActionBuffers actionsOut)
     {
-        // Debug.Log("HEURISTIC CALLED");
         var discreteActionsOut = actionsOut.DiscreteActions;
         var continuousActionsOut = actionsOut.ContinuousActions;
 
@@ -207,12 +225,12 @@ public class PlayerRL : Agent
     //create a public function for adding rewards to the agent:
     public void AddRewardExternal(float reward)
     {
-        if(reward > 0) {
-            Debug.Log("POSITIVE REWARD: " + reward);
-        }
-        else if(reward < 0) {
-            Debug.Log("NEGATIVE REWARD: " + reward);
-        }
+        // if(reward > 0) {
+        //     Debug.Log("POSITIVE REWARD: " + reward);
+        // }
+        // else if(reward < 0) {
+        //     Debug.Log("NEGATIVE REWARD: " + reward);
+        // }
         AddReward(reward);
     }
 
@@ -237,6 +255,11 @@ public class PlayerRL : Agent
         if(healthBarFill == null)
         {
             healthBarFill = GameObject.Find("HealthbarFill").GetComponent<Image>();
+        }
+
+        if(rockCountText == null)
+        {
+            rockCountText = GameObject.Find("RockCounter").GetComponent<TextMeshProUGUI>();
         }
         Vector2 mousePosition = mainCamera.WorldToScreenPoint(mouseWorldPosition);
 
@@ -360,12 +383,14 @@ public class PlayerRL : Agent
             GameManager.numCorrect = 0;
             GameManager.numIncorrect = 0;
 
-            AddRewardExternal(-100f);
-            //PLAYER DIES!
+            AddRewardExternal(-2f);
+            //print the net reward for this episode:
+            Debug.Log("Net Reward: " + GetCumulativeReward());
             EndEpisode();
 
             //set health back to max
             health = maxHealth;
+            rockCount = 0;
             SceneManager.LoadScene("GameSceneRL");
         }
     }

@@ -9,15 +9,24 @@
                 "auxillary_file_paths": [
                     "results\\Run1\\PlayerRL\\PlayerRL-35948.pt"
                 ]
+            },
+            {
+                "steps": 39063,
+                "file_path": "results\\Run1\\PlayerRL\\PlayerRL-39063.onnx",
+                "reward": 1667.5555555555557,
+                "creation_time": 1710264257.0937297,
+                "auxillary_file_paths": [
+                    "results\\Run1\\PlayerRL\\PlayerRL-39063.pt"
+                ]
             }
         ],
         "final_checkpoint": {
-            "steps": 35948,
+            "steps": 39063,
             "file_path": "results\\Run1\\PlayerRL.onnx",
-            "reward": 1772.642857142857,
-            "creation_time": 1710263707.3240435,
+            "reward": 1667.5555555555557,
+            "creation_time": 1710264257.0937297,
             "auxillary_file_paths": [
-                "results\\Run1\\PlayerRL\\PlayerRL-35948.pt"
+                "results\\Run1\\PlayerRL\\PlayerRL-39063.pt"
             ]
         }
     },

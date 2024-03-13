@@ -48,7 +48,7 @@ public class Grain : MonoBehaviour
 
                 if(player.GetComponent<PlayerRL>() != null)
                 {
-                    player.GetComponent<PlayerRL>().AddRewardExternal(20);
+                    player.GetComponent<PlayerRL>().AddRewardExternal(2);
                 }
 
                 GameManager.numCorrect++;
@@ -59,10 +59,10 @@ public class Grain : MonoBehaviour
             }
             else {
                 //destroy the grain
-                if(player.GetComponent<PlayerRL>() != null)
-                {
-                    player.GetComponent<PlayerRL>().AddRewardExternal(-40);
-                }
+                // if(player.GetComponent<PlayerRL>() != null)
+                // {
+                //     player.GetComponent<PlayerRL>().AddRewardExternal(-40);
+                // }
                 GameManager.numIncorrect++;
                 GameManager.PlayWrongSound();
                 Destroy(gameObject);
