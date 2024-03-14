@@ -3,8 +3,8 @@ behaviors:
   PlayerRL:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 1024
-      buffer_size: 10240
+      batch_size: 16
+      buffer_size: 100
       learning_rate: 0.0003
       beta: 0.005
       epsilon: 0.2
@@ -56,7 +56,7 @@ engine_settings:
   width: 84
   height: 84
   quality_level: 5
-  time_scale: 20
+  time_scale: 1.0
   target_frame_rate: -1
   capture_frame_rate: 60
   no_graphics: false

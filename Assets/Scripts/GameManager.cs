@@ -59,7 +59,11 @@ public class GameManager : MonoBehaviour
             //lose
             numCorrect = 0;
             numIncorrect = 0;
-            UnityEngine.SceneManagement.SceneManager.LoadScene("LoseScreen2");
+            //if the current scene is called "GameSceneRL", then load "LoseScreenRL".
+            //here is the code to check the current scene name:
+            if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GameSceneRL") {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("LoseScreen2");
+            }
         }
     }
 

@@ -127,9 +127,9 @@ public class Enemy : MonoBehaviour
         // player.GetComponent<PlayerRL>().AddRewardExternal(5f); //kills only are rewarded.
 
         if (health <= 0) {
-            if(player.GetComponent<PlayerRL>() != null)
+            if(player.GetComponent<PlayerRL>() != null && (player.GetComponent<PlayerRL>().closestEnemy == null || player.GetComponent<PlayerRL>().closestEnemy == gameObject))
             {
-                player.GetComponent<PlayerRL>().AddRewardExternal(1f);
+                // player.GetComponent<PlayerRL>().AddRewardExternal(2f);
             }
             Destroy(gameObject);
         }

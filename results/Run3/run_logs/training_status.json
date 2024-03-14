@@ -2,22 +2,22 @@
     "PlayerRL": {
         "checkpoints": [
             {
-                "steps": 9348,
-                "file_path": "results\\Run3\\PlayerRL\\PlayerRL-9348.onnx",
-                "reward": -0.06096855103222072,
-                "creation_time": 1710364790.8680594,
+                "steps": 94988,
+                "file_path": "results\\Run3\\PlayerRL\\PlayerRL-94988.onnx",
+                "reward": null,
+                "creation_time": 1710389923.0936234,
                 "auxillary_file_paths": [
-                    "results\\Run3\\PlayerRL\\PlayerRL-9348.pt"
+                    "results\\Run3\\PlayerRL\\PlayerRL-94988.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 9348,
+            "steps": 94988,
             "file_path": "results\\Run3\\PlayerRL.onnx",
-            "reward": -0.06096855103222072,
-            "creation_time": 1710364790.8680594,
+            "reward": null,
+            "creation_time": 1710389923.0936234,
             "auxillary_file_paths": [
-                "results\\Run3\\PlayerRL\\PlayerRL-9348.pt"
+                "results\\Run3\\PlayerRL\\PlayerRL-94988.pt"
             ]
         }
     },

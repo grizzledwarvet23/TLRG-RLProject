@@ -69,7 +69,12 @@ public class PlayerRL : Agent
     private int actionChoice = 1;
     private Vector2 mouseWorldPosition;
 
+    private float mouseRotation = 0; //THIS IS JUST A TEST
+
     public static PlayerRL instance = null;
+
+    [System.NonSerialized]
+    public GameObject closestEnemy = null;
 
     void Awake()
     {
@@ -114,7 +119,7 @@ public class PlayerRL : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // AddRewardExternal(1); //just over time
+        // AddRewardExternal(-0.01f); //just over time
 
 
         // sensor.AddObservation(health);
@@ -139,27 +144,61 @@ public class PlayerRL : Agent
             return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
         });
 
-        int enemiesCap = 5;
+    
+        
+
+
+        int enemiesCap = 1; //JUST ONE ENEMY!
         
         if(enemies.Length > 0) {
-            string coordinates = "";
+            closestEnemy = enemies[0];
+            //write code that adds reward if the direction the player is facing is towards the closest enemy (within 20 degrees let's say):
+            
+
+            //add our own angle!
+
+            // sensor.AddObservation(angle / 180);
+            
+            
             for(int i = 0; i < enemiesCap; i++) {
                 if(i < enemies.Length) {
-                    sensor.AddObservation(enemies[i].transform.position.x - transform.position.x);
-                    sensor.AddObservation(enemies[i].transform.position.y - transform.position.y);
-                    coordinates += (enemies[i].transform.position.x - transform.position.x) + ", " + (enemies[i].transform.position.y - transform.position.y) + ", ";
-                    // sensor.AddObservation(enemies[i].GetComponent<Enemy>().health);
+                    //instead of x and y, we will do distance and angle:
+                    // sensor.AddObservation(Vector2.Distance(enemies[i].transform.position, transform.position));
+
+                    //we want the angle to be positive or negative: aka, directly above player would be 90, directly below would be -90.
+                    // if(enemies[i].transform.position.y > transform.position.y) {
+                    //     sensor.AddObservation(Vector2.Angle(enemies[i].transform.position - transform.position, Vector2.right));
+                    // } else {
+                    //     sensor.AddObservation(-1 * Vector2.Angle(enemies[i].transform.position - transform.position, Vector2.right));
+                    // }
+
+                    //get x distance and y distance between enemy and player, and normalize it:
+                    Vector2 coordinates = enemies[i].transform.position - transform.position;
+                    //x range is from = -2.29, 8.8. normalize it to be between 0 and 1:
+                    // coordinates.x = (coordinates.x + 2.29f) / 11.09f;
+                    // //y range is from -4.84, 4.84. normalize it to be between 0 and 1:
+                    // coordinates.y = (coordinates.y + 4.84f) / 9.68f;
+                    sensor.AddObservation(coordinates.x);
+                    sensor.AddObservation(coordinates.y);
+                    //then put distance from player to enemy:
+                    // sensor.AddObservation(Vector2.Distance(enemies[i].transform.position, transform.position));
                 } else {
-                    sensor.AddObservation(enemies[enemies.Length - 1].transform.position.x - transform.position.x);
-                    sensor.AddObservation(enemies[enemies.Length - 1].transform.position.y - transform.position.y);
-                    // sensor.AddObservation(enemies[0].GetComponent<Enemy>().health);
+                    Vector2 coordinates = enemies[enemies.Length - 1].transform.position - transform.position;  
+                    // coordinates.x = (coordinates.x + 2.29f) / 11.09f;
+                    // coordinates.y = (coordinates.y + 4.84f) / 9.68f;
+                    sensor.AddObservation(coordinates.x);
+                    sensor.AddObservation(coordinates.y);
+                    // sensor.AddObservation(Vector2.Distance(enemies[enemies.Length - 1].transform.position, transform.position));
                 }
             }
             //Debug.Log(coordinates);
         }
         else {
+            closestEnemy = null;
             for(int i = 0; i < enemiesCap; i++) {
+                //for first thing, random value between 3 and 12:
                 sensor.AddObservation(0);
+                //next, something random from -90 to 90:
                 sensor.AddObservation(0);
                 // sensor.AddObservation(0);
             }
@@ -177,18 +216,26 @@ public class PlayerRL : Agent
         // int actionType = actionBuffers.DiscreteActions[0];
 
         //now get mouse position from continuous actions
-        float mouseX = actionBuffers.ContinuousActions[0];
-        float mouseY = actionBuffers.ContinuousActions[1];
 
-        Debug.Log(mouseX + ", " + mouseY);
+        //set mouseRotation to random float from -180f to 180f:
+        // mouseRotation = Random.Range(-180f, 180f);
+        mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], -180f, 180f);
+        //basically there is one discrete action[0]. it has 10  possible values. 
+        //0 = -90, 1 = -70, 2 = -50, 3 = -30, 4 = -10, 5 = 10, 6 = 30, 7 = 50, 8 = 70, 9 = 90
+        // mouseRotation = -90 + 20 * actionBuffers.DiscreteActions[0];
+
+        // float mouseX = actionBuffers.ContinuousActions[0];
+        // float mouseY = actionBuffers.ContinuousActions[1];
+
+        // Debug.Log(mouseX + ", " + mouseY);
         
-        mouseX = ScaleAction(mouseX, -8.26f, 8.31f);
-        mouseY = ScaleAction(mouseY, -4.54f, 4.54f);
+        // mouseX = ScaleAction(mouseX, -8.26f, 8.31f);
+        // mouseY = ScaleAction(mouseY, -4.54f, 4.54f);
 
-        //water = 0, fire = 1, earth = 2, thunder = 3, nothing = 4
-        // actionChoice = actionType;
-        actionChoice = 1;
-        mouseWorldPosition = new Vector2(mouseX, mouseY);
+        // //water = 0, fire = 1, earth = 2, thunder = 3, nothing = 4
+        // // actionChoice = actionType;
+        // actionChoice = 1;
+        // mouseWorldPosition = new Vector2(mouseX, mouseY);
     }
 
     //heuristic for testing. so discrete actions[0] will be based on w,a,s,d. continuous[0] will be the x position of the mouse, and continuous[1] will be the y position of the mouse:
@@ -225,18 +272,29 @@ public class PlayerRL : Agent
     //create a public function for adding rewards to the agent:
     public void AddRewardExternal(float reward)
     {
-        // if(reward > 0) {
-        //     Debug.Log("POSITIVE REWARD: " + reward);
-        // }
-        // else if(reward < 0) {
-        //     Debug.Log("NEGATIVE REWARD: " + reward);
-        // }
         AddReward(reward);
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        //sort it by distance from player:
+        System.Array.Sort(enemies, delegate(GameObject a, GameObject b) {
+            return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
+        });
+        if(enemies.Length > 0) {
+            closestEnemy = enemies[0];
+            Vector2 dir = closestEnemy.transform.position - transform.position;
+            float ang = Vector2.Angle(dir, transform.right);
+            if(ang < 20) {
+                Debug.Log("FACING ENEMY");
+                AddRewardExternal(1f);
+            }
+        }
+
+
         // Convert the mouse position to world coordinates
         if(mainCamera == null)
         {
@@ -267,7 +325,8 @@ public class PlayerRL : Agent
         // Calculate the direction from the player to the mouse cursor
         Vector2 direction = mouseWorldPosition - new Vector2(transform.position.x, transform.position.y);
         // Calculate the angle in degrees
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float angle = mouseRotation;
 
         // Rotate the player around the Z-axis
         shooterAxis.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -378,13 +437,17 @@ public class PlayerRL : Agent
         health -= dmg;
         healthBarFill.fillAmount = (float)health / (float)maxHealth;
 
-        AddRewardExternal(-1f);
+        // AddRewardExternal(-1f);
+
+        
         if(health <= 0) {
             GameManager.numCorrect = 0;
             GameManager.numIncorrect = 0;
 
-            AddRewardExternal(-2f);
             //print the net reward for this episode:
+            
+            
+            // AddRewardExternal(-1f);
             Debug.Log("Net Reward: " + GetCumulativeReward());
             EndEpisode();
 
