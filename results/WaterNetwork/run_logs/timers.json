@@ -1,0 +1,54 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1710534731",
+        "python_version": "3.8.10 (tags/v3.8.10:3d8993a, May  3 2021, 11:48:03) [MSC v.1928 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\zayaa\\Unity Projects\\OneButtonJam\\venv\\Scripts\\mlagents-learn Assets\\Scripts\\configfiles\\config2.yaml --run-id=WaterNetwork --resume",
+        "mlagents_version": "0.29.0",
+        "mlagents_envs_version": "0.29.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "2.2.1+cpu",
+        "numpy_version": "1.21.2",
+        "end_time_seconds": "1710534739"
+    },
+    "total": 8.102483000000001,
+    "count": 1,
+    "self": 0.008059400000000494,
+    "children": {
+        "run_training.setup": {
+            "total": 0.06663159999999979,
+            "count": 1,
+            "self": 0.06663159999999979
+        },
+        "TrainerController.start_learning": {
+            "total": 8.027792000000002,
+            "count": 1,
+            "self": 0.00011220000000200514,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 7.9370408999999995,
+                    "count": 1,
+                    "self": 7.9370408999999995
+                },
+                "trainer_threads": {
+                    "total": 9.999999992515995e-07,
+                    "count": 1,
+                    "self": 9.999999992515995e-07
+                },
+                "TrainerController._save_models": {
+                    "total": 0.09063790000000083,
+                    "count": 1,
+                    "self": 0.0007305000000012996,
+                    "children": {
+                        "RLTrainer._checkpoint": {
+                            "total": 0.08990739999999953,
+                            "count": 1,
+                            "self": 0.08990739999999953
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

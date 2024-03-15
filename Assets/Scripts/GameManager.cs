@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
         else {
             //check if the crop in cropsParent is below the y position of -6.5. if so, destroy it and increment numIncorrect
             if (!isSpawning && cropsParent.transform.GetChild(0).position.y < -6.5f) {
+                
                 Destroy(cropsParent.transform.GetChild(0).gameObject);
                 numIncorrect++;
                 PlayWrongSound();
@@ -54,7 +55,12 @@ public class GameManager : MonoBehaviour
             //win
             numCorrect = 0;
             numIncorrect = 0;
-            UnityEngine.SceneManagement.SceneManager.LoadScene("WinScreen");
+            if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GameSceneRL") {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("WinScreen");
+            } else {
+                PlayerRL.instance.AddRewardExternal(10f);
+                PlayerRL.instance.Die();
+            }
         } else if (numIncorrect >= 5) {
             //lose
             numCorrect = 0;
@@ -63,6 +69,9 @@ public class GameManager : MonoBehaviour
             //here is the code to check the current scene name:
             if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GameSceneRL") {
                 UnityEngine.SceneManagement.SceneManager.LoadScene("LoseScreen2");
+            } else {
+                PlayerRL.instance.AddRewardExternal(-2f);
+                PlayerRL.instance.Die();
             }
         }
     }

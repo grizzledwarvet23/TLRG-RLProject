@@ -1,0 +1,65 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 391163,
+                "file_path": "results\\WaterNetwork\\PlayerRL\\PlayerRL-391163.onnx",
+                "reward": null,
+                "creation_time": 1710533351.4025981,
+                "auxillary_file_paths": [
+                    "results\\WaterNetwork\\PlayerRL\\PlayerRL-391163.pt"
+                ]
+            },
+            {
+                "steps": 399891,
+                "file_path": "results\\WaterNetwork\\PlayerRL\\PlayerRL-399891.onnx",
+                "reward": 1.0,
+                "creation_time": 1710533573.3512642,
+                "auxillary_file_paths": [
+                    "results\\WaterNetwork\\PlayerRL\\PlayerRL-399891.pt"
+                ]
+            },
+            {
+                "steps": 499991,
+                "file_path": "results\\WaterNetwork\\PlayerRL\\PlayerRL-499991.onnx",
+                "reward": null,
+                "creation_time": 1710534230.9890735,
+                "auxillary_file_paths": [
+                    "results\\WaterNetwork\\PlayerRL\\PlayerRL-499991.pt"
+                ]
+            },
+            {
+                "steps": 500055,
+                "file_path": "results\\WaterNetwork\\PlayerRL\\PlayerRL-500055.onnx",
+                "reward": null,
+                "creation_time": 1710534231.0227275,
+                "auxillary_file_paths": [
+                    "results\\WaterNetwork\\PlayerRL\\PlayerRL-500055.pt"
+                ]
+            },
+            {
+                "steps": 500055,
+                "file_path": "results\\WaterNetwork\\PlayerRL\\PlayerRL-500055.onnx",
+                "reward": null,
+                "creation_time": 1710534739.8984616,
+                "auxillary_file_paths": [
+                    "results\\WaterNetwork\\PlayerRL\\PlayerRL-500055.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 500055,
+            "file_path": "results\\WaterNetwork\\PlayerRL.onnx",
+            "reward": null,
+            "creation_time": 1710534739.8984616,
+            "auxillary_file_paths": [
+                "results\\WaterNetwork\\PlayerRL\\PlayerRL-500055.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}

@@ -65,8 +65,8 @@ public class PlayerRL : Agent
 
     //4 boolean variables to represent the 4 possible actions:
 
-    private int previousAction = 1; //both should be 5 to begin.
-    private int actionChoice = 1;
+    private int previousAction = 5; //both should be 5 to begin.
+    private int actionChoice = 5;
     private Vector2 mouseWorldPosition;
 
     private float mouseRotation = 0; //THIS IS JUST A TEST
@@ -75,6 +75,8 @@ public class PlayerRL : Agent
 
     [System.NonSerialized]
     public GameObject closestEnemy = null;
+
+    private GameObject crop;
 
     void Awake()
     {
@@ -119,45 +121,50 @@ public class PlayerRL : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // AddRewardExternal(-0.01f); //just over time
+        //Water network (2 inputs):
+        GameObject cropSpawn = GameObject.Find("CropSpawn");
+        int sum = 0;
+        if(cropSpawn.transform.childCount > 0) {
+            GameObject child = cropSpawn.transform.GetChild(0).gameObject;
+            //first we think of type of crop. 
+            //check if they either contain "RiceGrain", "SoybeanGrain", or "FruitGrain":
+            if(child.name.Contains("RiceGrain")) {
+                sensor.AddObservation(0);
+                sum++;
+            } else if(child.name.Contains("SoybeanGrain")) {
+                sensor.AddObservation(1);
+                sum++;
+            } else if(child.name.Contains("FruitGrain")) {
+                sensor.AddObservation(2);
+                sum++;
+            }
+            sensor.AddObservation(child.transform.position.y);
+            sum++;
+            crop = child;
+        } else {
+            sensor.AddObservation(3); //none
+            sensor.AddObservation(0);
+            sum+=2;
+        }
+
+        //print out how many observations we have:
+        Debug.Log("Observations: " + sum);
 
 
-        // sensor.AddObservation(health);
-        // sensor.AddObservation(rockCount);
-        // //now do position of each of the rocks, up to 3. default value will be 0,0:
-        // GameObject[] rocks = GameObject.FindGameObjectsWithTag("Earth");
 
-        // for(int i = 0; i < 3; i++) {
-        //     if(i < rocks.Length) {
-        //         sensor.AddObservation(rocks[i].transform.position.x - transform.position.x);
-        //         sensor.AddObservation(rocks[i].transform.position.y - transform.position.y);
-        //     } else {
-        //         sensor.AddObservation(0);
-        //         sensor.AddObservation(0);
-        //     }
-        // }
-
-        //another observation will be to the closest enemy's position. if no enemies, then just add 0,0:
+    
+        //THIS IS FOR THE BASIC FIRE NETWORK.
+        /*
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         //sort it by distance from player:
         System.Array.Sort(enemies, delegate(GameObject a, GameObject b) {
             return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
         });
-
-    
         
-
-
         int enemiesCap = 1; //JUST ONE ENEMY!
         
         if(enemies.Length > 0) {
             closestEnemy = enemies[0];
-            //write code that adds reward if the direction the player is facing is towards the closest enemy (within 20 degrees let's say):
-            
-
-            //add our own angle!
-
-            // sensor.AddObservation(angle / 180);
             
             
             for(int i = 0; i < enemiesCap; i++) {
@@ -174,10 +181,6 @@ public class PlayerRL : Agent
 
                     //get x distance and y distance between enemy and player, and normalize it:
                     Vector2 coordinates = enemies[i].transform.position - transform.position;
-                    //x range is from = -2.29, 8.8. normalize it to be between 0 and 1:
-                    // coordinates.x = (coordinates.x + 2.29f) / 11.09f;
-                    // //y range is from -4.84, 4.84. normalize it to be between 0 and 1:
-                    // coordinates.y = (coordinates.y + 4.84f) / 9.68f;
                     sensor.AddObservation(coordinates.x);
                     sensor.AddObservation(coordinates.y);
                     //then put distance from player to enemy:
@@ -200,9 +203,9 @@ public class PlayerRL : Agent
                 sensor.AddObservation(0);
                 //next, something random from -90 to 90:
                 sensor.AddObservation(0);
-                // sensor.AddObservation(0);
             }
         }
+        */
 
 
 
@@ -213,24 +216,15 @@ public class PlayerRL : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         previousAction = actionChoice;
-        // int actionType = actionBuffers.DiscreteActions[0];
-
-        //now get mouse position from continuous actions
-
-        //set mouseRotation to random float from -180f to 180f:
-        // mouseRotation = Random.Range(-180f, 180f);
-        mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], -180f, 180f);
-        //basically there is one discrete action[0]. it has 10  possible values. 
-        //0 = -90, 1 = -70, 2 = -50, 3 = -30, 4 = -10, 5 = 10, 6 = 30, 7 = 50, 8 = 70, 9 = 90
-        // mouseRotation = -90 + 20 * actionBuffers.DiscreteActions[0];
-
-        // float mouseX = actionBuffers.ContinuousActions[0];
-        // float mouseY = actionBuffers.ContinuousActions[1];
-
-        // Debug.Log(mouseX + ", " + mouseY);
-        
-        // mouseX = ScaleAction(mouseX, -8.26f, 8.31f);
-        // mouseY = ScaleAction(mouseY, -4.54f, 4.54f);
+        //this is for water network
+        actionChoice = actionBuffers.DiscreteActions[0];
+        if(actionChoice == 1) //map 1 to no op
+        {
+            actionChoice = 4;
+        }
+        // mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 90f, 270f);
+        //THIS WAS FOR FIRE NETWORK:
+        //mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], -180f, 180f);        
 
         // //water = 0, fire = 1, earth = 2, thunder = 3, nothing = 4
         // // actionChoice = actionType;
@@ -279,8 +273,9 @@ public class PlayerRL : Agent
     void Update()
     {
 
+        //THIS IS FOR FIRE NETWORK:
+        /*
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        //sort it by distance from player:
         System.Array.Sort(enemies, delegate(GameObject a, GameObject b) {
             return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
         });
@@ -288,11 +283,12 @@ public class PlayerRL : Agent
             closestEnemy = enemies[0];
             Vector2 dir = closestEnemy.transform.position - transform.position;
             float ang = Vector2.Angle(dir, transform.right);
-            if(ang < 20) {
+            if(ang < 5) {
                 Debug.Log("FACING ENEMY");
                 AddRewardExternal(1f);
             }
         }
+        */
 
 
         // Convert the mouse position to world coordinates
@@ -387,6 +383,18 @@ public class PlayerRL : Agent
         }
         if(actionChoice < 4 && Time.time - buttonPressStartTime > 0.18f) { //ie, it is not just "do nothing." also action has been committed to long enough.
             if(actionChoice == WATER_INDEX) {
+                //ik we set shooterAxis.rotation = Quaternion.AngleAxis(angle, Vector3.forward),
+                //but check if crop is not null. if it is, then set rotation to face that direction:
+                if(crop != null) {
+                    Vector2 dir = crop.transform.position - transform.position;
+                    float ang = Vector2.Angle(dir, transform.right);
+                    if(crop.transform.position.y > transform.position.y) {
+                        shooterAxis.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
+                    } else {
+                        shooterAxis.rotation = Quaternion.AngleAxis(-1 * ang, Vector3.forward);
+                    }
+                    // shooterAxis.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
+                }
                 // Water
                 if(water.GetComponent<ParticleSystem>().isPlaying == false) {
                     water.GetComponent<ParticleSystem>().Play();
@@ -441,21 +449,21 @@ public class PlayerRL : Agent
 
         
         if(health <= 0) {
-            GameManager.numCorrect = 0;
-            GameManager.numIncorrect = 0;
-
-            //print the net reward for this episode:
-            
-            
-            // AddRewardExternal(-1f);
-            Debug.Log("Net Reward: " + GetCumulativeReward());
-            EndEpisode();
-
-            //set health back to max
-            health = maxHealth;
-            rockCount = 0;
-            SceneManager.LoadScene("GameSceneRL");
+            Die();
         }
+    }
+
+    public void Die() {
+        GameManager.numCorrect = 0;
+        GameManager.numIncorrect = 0;
+
+        Debug.Log("Net Reward: " + GetCumulativeReward());
+        EndEpisode();
+
+        //set health back to max
+        health = maxHealth;
+        rockCount = 0;
+        SceneManager.LoadScene("GameSceneRL");
     }
 
     IEnumerator ReloadScene() {

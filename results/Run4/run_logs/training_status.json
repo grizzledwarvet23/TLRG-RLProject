@@ -2,22 +2,58 @@
     "PlayerRL": {
         "checkpoints": [
             {
-                "steps": 120600,
-                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-120600.onnx",
+                "steps": 133833,
+                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-133833.onnx",
                 "reward": null,
-                "creation_time": 1710443513.1015477,
+                "creation_time": 1710520458.3128989,
                 "auxillary_file_paths": [
-                    "results\\Run4\\PlayerRL\\PlayerRL-120600.pt"
+                    "results\\Run4\\PlayerRL\\PlayerRL-133833.pt"
+                ]
+            },
+            {
+                "steps": 154326,
+                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-154326.onnx",
+                "reward": 39.0,
+                "creation_time": 1710520676.5392365,
+                "auxillary_file_paths": [
+                    "results\\Run4\\PlayerRL\\PlayerRL-154326.pt"
+                ]
+            },
+            {
+                "steps": 155222,
+                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-155222.onnx",
+                "reward": null,
+                "creation_time": 1710520722.363609,
+                "auxillary_file_paths": [
+                    "results\\Run4\\PlayerRL\\PlayerRL-155222.pt"
+                ]
+            },
+            {
+                "steps": 155222,
+                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-155222.onnx",
+                "reward": null,
+                "creation_time": 1710520807.4358008,
+                "auxillary_file_paths": [
+                    "results\\Run4\\PlayerRL\\PlayerRL-155222.pt"
+                ]
+            },
+            {
+                "steps": 155478,
+                "file_path": "results\\Run4\\PlayerRL\\PlayerRL-155478.onnx",
+                "reward": null,
+                "creation_time": 1710521943.218281,
+                "auxillary_file_paths": [
+                    "results\\Run4\\PlayerRL\\PlayerRL-155478.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 120600,
+            "steps": 155478,
             "file_path": "results\\Run4\\PlayerRL.onnx",
             "reward": null,
-            "creation_time": 1710443513.1015477,
+            "creation_time": 1710521943.218281,
             "auxillary_file_paths": [
-                "results\\Run4\\PlayerRL\\PlayerRL-120600.pt"
+                "results\\Run4\\PlayerRL\\PlayerRL-155478.pt"
             ]
         }
     },
