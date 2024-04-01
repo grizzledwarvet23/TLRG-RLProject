@@ -66,7 +66,7 @@ public class PlayerRL : Agent
     //4 boolean variables to represent the 4 possible actions:
 
     private int previousAction = 5; //both should be 5 to begin.
-    private int actionChoice = 5;
+    private int actionChoice = 0;
     private Vector2 mouseWorldPosition;
 
     private float mouseRotation = 0; //THIS IS JUST A TEST
@@ -148,10 +148,6 @@ public class PlayerRL : Agent
         }
 
         //print out how many observations we have:
-        Debug.Log("Observations: " + sum);
-
-
-
     
         //THIS IS FOR THE BASIC FIRE NETWORK.
         /*
@@ -206,23 +202,19 @@ public class PlayerRL : Agent
             }
         }
         */
-
-
-
-
         
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         previousAction = actionChoice;
-        //this is for water network
-        actionChoice = actionBuffers.DiscreteActions[0];
-        if(actionChoice == 1) //map 1 to no op
-        {
-            actionChoice = 4;
-        }
-        // mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 90f, 270f);
+        // //this is for water network
+        // actionChoice = actionBuffers.DiscreteActions[0];
+        // if(actionChoice == 1) //map 1 to no op
+        // {
+        //     actionChoice = 4;
+        // }
+        mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 90f, 270f);
         //THIS WAS FOR FIRE NETWORK:
         //mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], -180f, 180f);        
 
@@ -383,17 +375,15 @@ public class PlayerRL : Agent
         }
         if(actionChoice < 4 && Time.time - buttonPressStartTime > 0.18f) { //ie, it is not just "do nothing." also action has been committed to long enough.
             if(actionChoice == WATER_INDEX) {
-                //ik we set shooterAxis.rotation = Quaternion.AngleAxis(angle, Vector3.forward),
-                //but check if crop is not null. if it is, then set rotation to face that direction:
                 if(crop != null) {
-                    Vector2 dir = crop.transform.position - transform.position;
-                    float ang = Vector2.Angle(dir, transform.right);
-                    if(crop.transform.position.y > transform.position.y) {
-                        shooterAxis.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
-                    } else {
-                        shooterAxis.rotation = Quaternion.AngleAxis(-1 * ang, Vector3.forward);
-                    }
-                    // shooterAxis.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
+                    // Vector2 dir = crop.transform.position - transform.position;
+                    // float ang = Vector2.Angle(dir, transform.right);
+                    // if(crop.transform.position.y > transform.position.y) {
+                    //     shooterAxis.rotation = Quaternion.AngleAxis(ang, Vector3.forward);
+                    // } else {
+                    //     shooterAxis.rotation = Quaternion.AngleAxis(-1 * ang, Vector3.forward);
+                    // }
+                    shooterAxis.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 }
                 // Water
                 if(water.GetComponent<ParticleSystem>().isPlaying == false) {

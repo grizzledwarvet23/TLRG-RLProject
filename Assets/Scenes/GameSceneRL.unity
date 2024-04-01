@@ -5739,6 +5739,7 @@ GameObject:
   - component: {fileID: 348024410}
   - component: {fileID: 348024412}
   - component: {fileID: 348024413}
+  - component: {fileID: 348024414}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -5971,13 +5972,13 @@ MonoBehaviour:
     VectorObservationSize: 2
     NumStackedVectorObservations: 1
     m_ActionSpec:
-      m_NumContinuousActions: 0
-      BranchSizes: 02000000
-    VectorActionSize: 02000000
+      m_NumContinuousActions: 1
+      BranchSizes: 
+    VectorActionSize: 01000000
     VectorActionDescriptions: []
-    VectorActionSpaceType: 0
+    VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 56a8cd19d54595743a4603f96a642027, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 3
   m_BehaviorType: 0
   m_BehaviorName: PlayerRL
@@ -5999,6 +6000,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DecisionPeriod: 10
   TakeActionsBetweenDecisions: 1
+--- !u!114 &348024414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348024406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76011e13e664334385f4eca682f4f73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 5065
 --- !u!1 &372454663
 GameObject:
   m_ObjectHideFlags: 0
