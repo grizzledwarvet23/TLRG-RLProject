@@ -1,0 +1,65 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 92155,
+                "file_path": "results\\WaterRotater\\PlayerRL\\PlayerRL-92155.onnx",
+                "reward": -3.0,
+                "creation_time": 1710811711.329139,
+                "auxillary_file_paths": [
+                    "results\\WaterRotater\\PlayerRL\\PlayerRL-92155.pt"
+                ]
+            },
+            {
+                "steps": 107944,
+                "file_path": "results\\WaterRotater\\PlayerRL\\PlayerRL-107944.onnx",
+                "reward": 5.5,
+                "creation_time": 1710812506.2108574,
+                "auxillary_file_paths": [
+                    "results\\WaterRotater\\PlayerRL\\PlayerRL-107944.pt"
+                ]
+            },
+            {
+                "steps": 118311,
+                "file_path": "results\\WaterRotater\\PlayerRL\\PlayerRL-118311.onnx",
+                "reward": 2.0,
+                "creation_time": 1710817571.3123987,
+                "auxillary_file_paths": [
+                    "results\\WaterRotater\\PlayerRL\\PlayerRL-118311.pt"
+                ]
+            },
+            {
+                "steps": 119850,
+                "file_path": "results\\WaterRotater\\PlayerRL\\PlayerRL-119850.onnx",
+                "reward": 6.0,
+                "creation_time": 1710858970.4667826,
+                "auxillary_file_paths": [
+                    "results\\WaterRotater\\PlayerRL\\PlayerRL-119850.pt"
+                ]
+            },
+            {
+                "steps": 121523,
+                "file_path": "results\\WaterRotater\\PlayerRL\\PlayerRL-121523.onnx",
+                "reward": 6.5,
+                "creation_time": 1710893829.489854,
+                "auxillary_file_paths": [
+                    "results\\WaterRotater\\PlayerRL\\PlayerRL-121523.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 121523,
+            "file_path": "results\\WaterRotater\\PlayerRL.onnx",
+            "reward": 6.5,
+            "creation_time": 1710893829.489854,
+            "auxillary_file_paths": [
+                "results\\WaterRotater\\PlayerRL\\PlayerRL-121523.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}

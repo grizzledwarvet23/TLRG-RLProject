@@ -65,8 +65,8 @@ public class PlayerRL : Agent
 
     //4 boolean variables to represent the 4 possible actions:
 
-    private int previousAction = 5; //both should be 5 to begin.
-    private int actionChoice = 0;
+    private int previousAction = 1; //both should be 5 to begin.
+    private int actionChoice = 1;
     private Vector2 mouseWorldPosition;
 
     private float mouseRotation = 0; //THIS IS JUST A TEST
@@ -76,7 +76,12 @@ public class PlayerRL : Agent
     [System.NonSerialized]
     public GameObject closestEnemy = null;
 
+    private float closestEnemyX = 0;
+    private float closestEnemyY = 0;
+
     private GameObject crop;
+
+    private int reward = 0;
 
     void Awake()
     {
@@ -104,19 +109,50 @@ public class PlayerRL : Agent
         rockCountText.text = "x " + (3 - rockCount).ToString() + "/3";
         rockShadow.SetActive(false);
         thunderShadow.SetActive(false);
-        // StartCoroutine(selectAction());
-        // StartCoroutine(generateMousePosition());
     }
 
-    public override void Initialize()
+    public float[] GetObservations()
     {
-        //do nothing
+        float[] res = new float[2];
+        if(closestEnemy != null) {
+            res[0] = closestEnemyX;
+            res[1] = closestEnemyY;
+        } else {
+            res[0] = 0;
+            res[1] = 0;
+        }
+        return res;
     }
+
+    public void SetAction(float fireRotateValue)
+    {
+        //firerotatevalue is from [-1 to 1]. but lets scale it from -90 to 90.
+        mouseRotation = ScaleAction(fireRotateValue, -90f, 90f);
+    }
+
+    public int GetReward() //gets the reward at this current time step.
+    {
+        return reward;
+    }
+
+    public void AddRewardCustom(int r)
+    {
+        StartCoroutine(AddRewardCoroutine(r));
+    }
+
+    private IEnumerator AddRewardCoroutine(int r)
+    {
+        reward += r;
+        yield return new WaitForSeconds(0.5f); //we do this because we want this reward to have some "time" before it goes away.
+        reward -= 0;
+    }
+
+
+
 
     public override void OnEpisodeBegin()
     {
         water.GetComponent<ParticleSystem>().Stop();
-        //do nothing
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -266,22 +302,23 @@ public class PlayerRL : Agent
     {
 
         //THIS IS FOR FIRE NETWORK:
-        /*
+        
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         System.Array.Sort(enemies, delegate(GameObject a, GameObject b) {
             return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
         });
         if(enemies.Length > 0) {
             closestEnemy = enemies[0];
+            closestEnemyX = closestEnemy.transform.position.x;
+            closestEnemyY = closestEnemy.transform.position.y;
             Vector2 dir = closestEnemy.transform.position - transform.position;
             float ang = Vector2.Angle(dir, transform.right);
             if(ang < 5) {
-                Debug.Log("FACING ENEMY");
                 AddRewardExternal(1f);
             }
-        }
-        */
-
+        }        
+        
+       
 
         // Convert the mouse position to world coordinates
         if(mainCamera == null)

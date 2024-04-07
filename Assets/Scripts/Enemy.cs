@@ -129,7 +129,7 @@ public class Enemy : MonoBehaviour
         if (health <= 0) {
             if(player.GetComponent<PlayerRL>() != null && (player.GetComponent<PlayerRL>().closestEnemy == null || player.GetComponent<PlayerRL>().closestEnemy == gameObject))
             {
-                // player.GetComponent<PlayerRL>().AddRewardExternal(2f);
+                player.GetComponent<PlayerRL>().AddRewardCustom(1); //our own custom rl reward function. 
             }
             Destroy(gameObject);
         }

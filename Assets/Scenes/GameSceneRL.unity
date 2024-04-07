@@ -6013,6 +6013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 5065
+  pythonIP: 127.0.0.1
 --- !u!1 &372454663
 GameObject:
   m_ObjectHideFlags: 0
@@ -6063,7 +6064,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &422883259
 Transform:
   m_ObjectHideFlags: 0
