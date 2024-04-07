@@ -56,7 +56,21 @@ class ActorCritic(nn.Module):
 #ok we'll just test making a nn and getting output.
 state_dim = 2
 fire_ac = ActorCritic(state_dim)
+
+#it might've been saved to the path "fire_ac", so load it if it exists:
+try:
+    fire_ac.load_state_dict(torch.load("fire_ac2"))
+    print("loaded model")
+except:
+    print("no model found")
+    pass
+
+
+
+
 optimizer = optim.Adam(fire_ac.parameters(), lr=0.01)
+
+
 
 # def preprocess_data(data):
 #     data_dict = json.loads(data) #json->python dict
@@ -71,69 +85,91 @@ def reinforce_update(returns, log_probs):
         policy_loss.append(-log_prob * Gt) #negative for gradient ascent
     optimizer.zero_grad()
     policy_loss = torch.cat(policy_loss).sum()
-    policy_loss.backward()
+    policy_loss.backward(retain_graph=True)
     optimizer.step()
+
+def ppo_update(states, actions, log_probs_old, returns, values_old, epsilon=0.2, beta=0.001):
+    #convert values_old to tensor:
+    values_old = torch.tensor(values_old, dtype=torch.float32)
+    #convert log_probs_old from list to tensor:
+    log_probs_old = torch.tensor(log_probs_old, dtype=torch.float32)
+    advantages = returns - values_old
+
+
+    for _ in range(3): #lets just say 3 epochs for now.
+        _, log_probs, values = fire_ac( torch.tensor(states, dtype=torch.float32) )
+
+        ratios = torch.exp(log_probs - log_probs_old) #pi_theta / pi_theta_old
+        surr1 = ratios * advantages
+        surr2 = torch.clamp(ratios, 1 - epsilon, 1 + epsilon) * advantages
+
+        policy_loss = -torch.min(surr1, surr2).mean() #we do negative for gradient ascent
+        value_loss = F.mse_loss(values, returns)
+
+        optimizer.zero_grad()
+        (policy_loss + value_loss * beta).backward()
+        optimizer.step()
+
     
-def compute_returns(rewards):
+def compute_returns(rewards, gamma=0.99):
     returns = []
     Gt = 0
-    pw = 0
-    for r in rewards:
-        Gt += r
-        returns.insert(0, Gt)
+    for r in reversed(rewards):
+        Gt = r + gamma * Gt
+        returns.append(Gt)
+    returns.reverse()
     returns = torch.tensor(returns)
-    returns = returns.float()
-    returns = (returns - returns.mean()) / (returns.std() + 1e-5) #normalize returns.
+    print(returns)
     return returns
-
+    
 timestep = 0
 
 states, actions, rewards = [], [], []
+values = []
 log_probs = []
 
 sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT)) #one time send?
 
 while True:
-    data, addr = sock.recvfrom(1024)
-    data = data.decode("utf-8")
-    data_dict = json.loads(data)
+    try:
+        data, addr = sock.recvfrom(1024)
+        data = data.decode("utf-8")
+        data_dict = json.loads(data)
 
-    #data_dict["ClosestEnemyPosition"] is a 2 element float list. we will use this as the 2 dimensional state to feed into fire_ac.
-    state = torch.tensor(data_dict["ClosestEnemyPosition"], dtype=torch.float32)
-    action, log_prob, value = fire_ac(state)
-    #print(action, log_prob, value)
+        #data_dict["ClosestEnemyPosition"] is a 2 element float list. we will use this as the 2 dimensional state to feed into fire_ac.
+        state = torch.tensor(data_dict["ClosestEnemyPosition"], dtype=torch.float32)
+        action, log_prob, value = fire_ac(state)
+        #print(action, log_prob, value)
 
-    #let us send this action back to the game.
-    action = action.detach().numpy().tolist()
-    #instead of just sending the action, we will do "Action: " + action
-    action = "Action: " + json.dumps(action)
-    sock.sendto(bytes(action, "utf-8"), (UDP_IP, UDP_PORT))
-
-
-    log_probs.append(log_prob)
-    states.append(data_dict["ClosestEnemyPosition"]) 
-    actions.append(action)
-    rewards.append(data_dict["Reward"])
+        #let us send this action back to the game.
+        action = action.detach().numpy().tolist()
+        #instead of just sending the action, we will do "Action: " + action
+        action = "Action: " + json.dumps(action)
+        sock.sendto(bytes(action, "utf-8"), (UDP_IP, UDP_PORT))
 
 
-    timestep += 1
-    print(timestep)
-    if timestep == 200:
-        returns = compute_returns(rewards)
-        reinforce_update(returns, log_probs)
-        timestep = 0
+        log_probs.append(log_prob)
+        states.append(data_dict["ClosestEnemyPosition"]) 
+        actions.append(action)
+        rewards.append(data_dict["Reward"])
+        values.append(value)
 
 
+        timestep += 1
+        print(timestep, action)
+        if timestep == 500:
+            returns = compute_returns(rewards)
+            # reinforce_update(returns, log_probs)
+            ppo_update(states, actions, log_probs, returns, values)
+            timestep = 0
+            states, actions, rewards = [], [], []
+            values = []
+            log_probs = []
 
-
-    
-
-
-    
-
-
-
-
+    except socket.timeout:
+        torch.save(fire_ac.state_dict(), "fire_ac2")
+        print("Socket timeout")
+        break
 
 
 
