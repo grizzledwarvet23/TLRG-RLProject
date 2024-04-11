@@ -11,15 +11,21 @@ import select
 import time
 import json
 
+import onnxruntime as ort
+
+
+
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 MESSAGE = "YOUR DATA"
 
+training_cycles = 0
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 #set timeout to 5 seconds
-sock.settimeout(5)
+sock.settimeout(10)
 
 #create actor-critic network for PPO. just the network part for now:
 class ActorCritic(nn.Module):
@@ -61,79 +67,91 @@ class ActorCritic(nn.Module):
             mean, log_std = raw_actor_output.chunk(2, dim=-1)
             log_std = torch.clamp(log_std, -20, 2)
             std = log_std.exp()
-            dist = Normal(mean, std)
+            dist = Normal(mean, 1)
             sample = dist.rsample()
             action = torch.tanh(sample)
             value = self.critic(x) 
+            #jacobian stuff copied from chatgpt
+            log_prob = dist.log_prob(sample) - torch.log(1 - action.pow(2) + 1e-6)
+            log_prob = log_prob.sum(-1, keepdim=True)  # Sum (or mean) over all action dimensions if necessary
             return action, dist.log_prob(action), value
+    
+
         else:
             raw_actor_output = self.actor(x)
             dist = Categorical(logits=raw_actor_output)
             action = dist.sample()
             value = self.critic(x)
-            #action is a tensor, scale it to be evenly spaced between -1 and 1. note that it has values between 0 and action_dim - 1.
-            action_normalized = torch.tensor(2 * (action.item() / (self.action_dim - 1)) - 1)
-            return action_normalized, dist.log_prob(action), value
+            # action_normalized = torch.tensor(2 * (action.item() / (self.action_dim - 1)) - 1)
+            return action, dist.log_prob(action), value
 
-    
-
-#ok we'll just test making a nn and getting output.
-state_dim = 3
-fire_ac = ActorCritic(state_dim, action_dim=14, discrete=True)
-#load from fire_ac2, if it exists.
+state_dim = 2
+#when discrete is false, action dim is irrelevant.
+fire_ac = ActorCritic(state_dim, action_dim=3, discrete=False)
 
 
 
 optimizer = optim.Adam(fire_ac.parameters(), lr=0.01)
 
 
+def ppo_update(states, actions, log_probs_old, returns, values_old, epsilon=0.2, beta=0.01):
+    #access the training cycles variable.
 
-#we will just do reinforce update for now.
-# def reinforce_update(returns, log_probs):
-#     print("UPDATING!")
-#     policy_loss = []
-#     for log_prob, Gt in zip(log_probs, returns):
-#         policy_loss.append(-log_prob * Gt) #negative for gradient ascent
-#     optimizer.zero_grad()
-#     policy_loss = torch.cat(policy_loss).sum()
-#     policy_loss.backward(retain_graph=True)
-#     optimizer.step()
+    states = torch.stack(tuple(torch.tensor(state, dtype=torch.float32) for state in states))
+    actions = torch.stack(tuple(torch.tensor(action, dtype=torch.float32) for action in actions))
+    log_probs_old = torch.stack(tuple(torch.tensor(log_prob, dtype=torch.float32) for log_prob in log_probs_old))
+    returns = torch.stack(tuple(torch.tensor(r, dtype=torch.float32) for r in returns))
+    values_old = torch.stack(tuple(torch.tensor(v, dtype=torch.float32) for v in values_old))
 
-def ppo_update(states, actions, log_probs_old, returns, values_old, epsilon=0.2, beta=0.001):
-    #convert values_old to tensor:
-    values_old = torch.tensor(values_old, dtype=torch.float32)
-    #convert log_probs_old from list to tensor:
-    log_probs_old = torch.tensor(log_probs_old, dtype=torch.float32)
-    advantages = returns - values_old
+    # log_probs_old = torch.tensor(log_probs_old, dtype=torch.float32)
+
+    means, log_stds = fire_ac.actor(states).chunk(2, dim=-1)
+    values_new = fire_ac.critic(states)
+    dists = torch.distributions.Normal(means, log_stds.exp())
+    log_probs_new = dists.log_prob(actions).sum(axis=-1)
+
+    advantages = returns - values_old.detach()
+
+    ratios = (log_probs_old - log_probs_new).exp()
+
+    surr1 = ratios * advantages
+    surr2 = torch.clamp(ratios, 1 - epsilon, 1 + epsilon) * advantages
+    policy_loss = -torch.min(surr1, surr2).mean()
+
+    critic_loss = F.mse_loss(values_new, returns)
+
+    total_loss = policy_loss + critic_loss
+    print(total_loss, policy_loss, critic_loss)
 
 
-    for _ in range(3): #lets just say 3 epochs for now.
-        
-            
-        #_, log_probs, values = fire_ac( torch.tensor(states, dtype=torch.float32), False )
-        #instead of calling fire_ac with the whole states list, we will call it with each state individually:
-        log_probs = []
-        values = []
-        for state in states:
-            state = torch.tensor(state, dtype=torch.float32)
-            _, log_prob, value = fire_ac(state)
-            log_probs.append(log_prob)
-            values.append(value)
-        log_probs = torch.tensor(log_probs, dtype=torch.float32)
-        values = torch.tensor(values, dtype=torch.float32, requires_grad=True)
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
 
-        ratios = torch.exp(log_probs - log_probs_old) #pi_theta / pi_theta_old
-        surr1 = ratios * advantages
-        surr2 = torch.clamp(ratios, 1 - epsilon, 1 + epsilon) * advantages
+    return total_loss.item()
 
-        policy_loss = -torch.min(surr1, surr2).mean() #we do negative for gradient ascent
-        value_loss = F.mse_loss(values, returns)
 
-        optimizer.zero_grad()
-        (policy_loss + value_loss * beta).backward()
-        #print("policy and value loss: ", policy_loss.item(), value_loss.item())
-        optimizer.step()
+    # for _ in range(3): #lets just say 3 epochs for now.
+    #     log_probs = []
+    #     values = []
+    #     for state in states:
+    #         state = torch.tensor(state, dtype=torch.float32)
+    #         _, log_prob, value = fire_ac(state)
+    #         log_probs.append(log_prob)
+    #         values.append(value)
+    #     log_probs = torch.tensor(log_probs, dtype=torch.float32)
+    #     values = torch.tensor(values, dtype=torch.float32, requires_grad=True)
+    #     ratios = torch.exp(log_probs - log_probs_old) #pi_theta / pi_theta_old
 
+    #     surr1 = ratios * advantages
+    #     surr2 = torch.clamp(ratios, 1 - epsilon, 1 + epsilon) * advantages
+
+
+    #     policy_loss = -torch.min(surr1, surr2).mean() #we do negative for gradient ascent
+    #     value_loss = F.mse_loss(values, returns)
+    #     optimizer.zero_grad()
+    #     (policy_loss + value_loss * beta).backward()
+    #     optimizer.step()
     
 def compute_returns(rewards, gamma=0.99):
     returns = []
@@ -142,53 +160,77 @@ def compute_returns(rewards, gamma=0.99):
         Gt = r + gamma * Gt
         returns.append(Gt)
     returns.reverse()
-    returns = torch.tensor(returns)
     return returns
     
 timestep = 0
+
 
 
 states, actions, rewards = [], [], []
 values = []
 log_probs = []
 
+
+
 sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT)) #one time send?
+
+model_path = 'models/FireRotate.onnx'
+
+session = ort.InferenceSession(model_path)
+
+input_name = session.get_inputs()[0].name
+input_shape = session.get_inputs()[0].shape
+input_type = session.get_inputs()[0].type
+
+print(f"Input name: {input_name}")
+print(f"Input shape: {input_shape}")
+print(f"Input type: {input_type}")
 
 while True:
     try:
         data, addr = sock.recvfrom(1024)
         data = data.decode("utf-8")
         data_dict = json.loads(data)
-
-        #data_dict["ClosestEnemyPosition"] is a 2 element float list. we will use this as the 2 dimensional state to feed into fire_ac.
-        #also, data_dict[]
-        #also data_dict["PlayerRotation"] is a single element float list, make this part of the state too:
-        state = torch.tensor( data_dict["ClosestEnemyPosition"] + data_dict["PlayerRotation"], dtype=torch.float32)
+        
+        # state_value = data_dict["ClosestEnemies"] + data_dict["PlayerRotation"]
+        #just get the first two values from ClosestEnemies for now.
+        state_value = data_dict["ClosestEnemies"][:2]
+        state = torch.tensor(state_value, dtype=torch.float32)
         action, log_prob, value = fire_ac(state)
-        #print(action, log_prob, value)
 
-        #let us send this action back to the game.
-        action = action.detach().numpy().tolist()
-        #instead of just sending the action, we will do "Action: " + action
-        action = "Action: " + json.dumps(action)
-        sock.sendto(bytes(action, "utf-8"), (UDP_IP, UDP_PORT))
-
+        #for session.run, the input says: Input shape: ['batch', 2]
+        #Input type: tensor(float).
+        #adhere to that. state_value just has the 2 values for the 2, but we need to put the batch parameter
+        #as we are requesting a single action, the batch size is 1:
+        #put the [batch_size, 2] tensor into a list.
+        
+        # input_data = np.array([state_value], dtype=np.float32)
+        input_data = np.array([state_value], dtype=np.float32)
+        outputs = session.run(None, {input_name: input_data})
+        real_action = outputs[2][0]
+        action_str = "Action: " + json.dumps(real_action.tolist())
+        print(action_str)
+        sock.sendto(bytes(json.dumps(action_str), "utf-8"), (UDP_IP, UDP_PORT))
 
         
+        # action = action.detach().numpy().tolist()
+        # action_str = "Action: " + json.dumps(action)
+        # sock.sendto(bytes(action_str, "utf-8"), (UDP_IP, UDP_PORT))
+
         log_probs.append(log_prob)
-        states.append(data_dict["ClosestEnemyPosition"] + data_dict["PlayerRotation"])
+        states.append(state_value)
         actions.append(action)
         rewards.append(data_dict["Reward"])
         values.append(value)
 
 
         timestep += 1
-        if timestep == 500:
-            print("UPDATE!")
+        if timestep == 256:
+            total_reward = sum(rewards)
+            print("UPDATE! Total reward: ", total_reward)
             print(rewards)
             returns = compute_returns(rewards)
-
-            # reinforce_update(returns, log_probs)
+            training_cycles += 1
             ppo_update(states, actions, log_probs, returns, values)
             timestep = 0
             states, actions, rewards = [], [], []
