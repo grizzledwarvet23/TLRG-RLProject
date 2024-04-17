@@ -42,13 +42,13 @@ class ActorCritic(nn.Module):
             )
             self.action_dim = action_dim
         else:
-            self.actor = nn.Sequential(
-                nn.Linear(state_dim, 64),
-                nn.ReLU(),
-                nn.Linear(64, 64),
-                nn.ReLU(),
-                nn.Linear(64, 2), #2 actions. a mean and a standard deviation.
-            )
+                self.actor = nn.Sequential(
+                    nn.Linear(state_dim, 64),
+                    nn.ReLU(),
+                    nn.Linear(64, 64),
+                    nn.ReLU(),
+                    nn.Linear(64, 2), #2 actions. a mean and a standard deviation.
+                )
         
         self.critic = nn.Sequential(
             nn.Linear(state_dim, 64),
@@ -67,7 +67,7 @@ class ActorCritic(nn.Module):
             mean, log_std = raw_actor_output.chunk(2, dim=-1)
             log_std = torch.clamp(log_std, -20, 2)
             std = log_std.exp()
-            dist = Normal(mean, 1)
+            dist = Normal(mean, std)
             sample = dist.rsample()
             action = torch.tanh(sample)
             value = self.critic(x) 
@@ -174,17 +174,50 @@ log_probs = []
 
 sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT)) #one time send?
 
-model_path = 'models/FireRotate.onnx'
+fire_model_path = 'models/FireRotate.onnx' 
 
-session = ort.InferenceSession(model_path)
+fire_session = ort.InferenceSession(fire_model_path)
 
-input_name = session.get_inputs()[0].name
-input_shape = session.get_inputs()[0].shape
-input_type = session.get_inputs()[0].type
+fire_input_name = fire_session.get_inputs()[0].name
+fire_input_shape = fire_session.get_inputs()[0].shape
+fire_input_type = fire_session.get_inputs()[0].type
 
-print(f"Input name: {input_name}")
-print(f"Input shape: {input_shape}")
-print(f"Input type: {input_type}")
+#crop_session = 'models/CropSorterNew.onnx'
+crop_session = 'models/CropSorterDivided(Cont+Discrete).onnx'
+
+crop_session = ort.InferenceSession(crop_session)
+
+crop_input_name = crop_session.get_inputs()[0].name
+crop_input_shape = crop_session.get_inputs()[0].shape
+crop_input_type = crop_session.get_inputs()[0].type
+
+crop_action_mask = crop_session.get_inputs()[1].name
+
+
+# print(crop_input_name)
+# print(crop_input_shape)
+# print(crop_input_type)
+
+#now to output information:
+crop_output_name = crop_session.get_outputs()[0].name
+crop_output_shape = crop_session.get_outputs()[0].shape
+crop_output_type = crop_session.get_outputs()[0].type
+
+
+
+#then the other output:
+crop_output_name2 = crop_session.get_outputs()[1].name
+crop_output_shape2 = crop_session.get_outputs()[1].shape
+crop_output_type2 = crop_session.get_outputs()[1].type
+
+
+# print(crop_session.get_outputs()[0])
+# print(crop_session.get_outputs()[1])
+# print(crop_session.get_outputs()[2])
+# print(crop_session.get_outputs()[3])
+# print(crop_session.get_outputs()[4])
+
+
 
 while True:
     try:
@@ -192,30 +225,37 @@ while True:
         data = data.decode("utf-8")
         data_dict = json.loads(data)
         
-        # state_value = data_dict["ClosestEnemies"] + data_dict["PlayerRotation"]
-        #just get the first two values from ClosestEnemies for now.
+ 
         state_value = data_dict["ClosestEnemies"][:2]
         state = torch.tensor(state_value, dtype=torch.float32)
         action, log_prob, value = fire_ac(state)
 
-        #for session.run, the input says: Input shape: ['batch', 2]
-        #Input type: tensor(float).
-        #adhere to that. state_value just has the 2 values for the 2, but we need to put the batch parameter
-        #as we are requesting a single action, the batch size is 1:
-        #put the [batch_size, 2] tensor into a list.
+        crop_state_value = data_dict["CropData"][:2]
+        top_decision = data_dict["TopDecision"]
         
-        # input_data = np.array([state_value], dtype=np.float32)
-        input_data = np.array([state_value], dtype=np.float32)
-        outputs = session.run(None, {input_name: input_data})
-        real_action = outputs[2][0]
-        action_str = "Action: " + json.dumps(real_action.tolist())
-        print(action_str)
-        sock.sendto(bytes(json.dumps(action_str), "utf-8"), (UDP_IP, UDP_PORT))
 
-        
-        # action = action.detach().numpy().tolist()
-        # action_str = "Action: " + json.dumps(action)
-        # sock.sendto(bytes(action_str, "utf-8"), (UDP_IP, UDP_PORT))
+
+        #0 = water, 1 = fire.
+        action_str = "Action: "
+        if top_decision == 0:
+            crop_input_data = np.array([crop_state_value], dtype=np.float32)
+            #we also have to put action_masks
+            #action masks says got 1, expected 2 so lets fix it:
+            action_mask = np.array([1, 1, 1], dtype=np.float32).reshape(1, 3)
+
+            
+            crop_outputs = crop_session.run(None, {crop_input_name: crop_input_data, crop_action_mask: action_mask})
+            crop_continuous_action = crop_outputs[2][0] 
+            crop_discrete_action = crop_outputs[5][0]
+            action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
+        elif top_decision == 1:
+            fire_input_data = np.array([state_value], dtype=np.float32)
+            fire_outputs = fire_session.run(None, {fire_input_name: fire_input_data})
+            fire_action = fire_outputs[2][0]
+            action_str += "Fire: " + json.dumps(fire_action.tolist())
+    
+
+        sock.sendto(bytes(json.dumps(action_str), "utf-8"), (UDP_IP, UDP_PORT))
 
         log_probs.append(log_prob)
         states.append(state_value)
@@ -223,19 +263,18 @@ while True:
         rewards.append(data_dict["Reward"])
         values.append(value)
 
-
-        timestep += 1
-        if timestep == 256:
-            total_reward = sum(rewards)
-            print("UPDATE! Total reward: ", total_reward)
-            print(rewards)
-            returns = compute_returns(rewards)
-            training_cycles += 1
-            ppo_update(states, actions, log_probs, returns, values)
-            timestep = 0
-            states, actions, rewards = [], [], []
-            values = []
-            log_probs = []
+        # timestep += 1
+        # if timestep == 256:
+        #     total_reward = sum(rewards)
+        #     print("UPDATE! Total reward: ", total_reward)
+        #     print(rewards)
+        #     returns = compute_returns(rewards)
+        #     training_cycles += 1
+        #     ppo_update(states, actions, log_probs, returns, values)
+        #     timestep = 0
+        #     states, actions, rewards = [], [], []
+        #     values = []
+        #     log_probs = []
 
     except socket.timeout:
         torch.save(fire_ac.state_dict(), "fire_ac2")
