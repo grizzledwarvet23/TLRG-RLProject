@@ -243,14 +243,15 @@ while True:
         #0 = water, 1 = fire.
         action_str = "Action: "
         if top_decision == 0:
-            crop_input_data = np.array([crop_state_value], dtype=np.float32)
-            #we also have to put action_masks
-            #action masks says got 1, expected 2 so lets fix it:
-            action_mask = np.array([1, 1, 1], dtype=np.float32).reshape(1, 3)
-            crop_outputs = crop_session.run(None, {crop_input_name: crop_input_data, crop_action_mask: action_mask})
-            crop_continuous_action = crop_outputs[2][0] 
-            crop_discrete_action = crop_outputs[5][0]
-            action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
+            # crop_input_data = np.array([crop_state_value], dtype=np.float32)
+            # #we also have to put action_masks
+            # #action masks says got 1, expected 2 so lets fix it:
+            # action_mask = np.array([1, 1, 1], dtype=np.float32).reshape(1, 3)
+            # crop_outputs = crop_session.run(None, {crop_input_name: crop_input_data, crop_action_mask: action_mask})
+            # crop_continuous_action = crop_outputs[2][0] 
+            # crop_discrete_action = crop_outputs[5][0]
+            # action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
+            continue #do this for rock test.
         elif top_decision == 1:
             action_mask = np.array([1, 1, 1, 1], dtype=np.float32).reshape(1, 4)
             fire_input_data = np.array([fire_state_value], dtype=np.float32)
