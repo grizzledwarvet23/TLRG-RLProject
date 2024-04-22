@@ -6,19 +6,32 @@ public class Fire : MonoBehaviour
 {
     Rigidbody2D rb;
     public float speed;
+
+    GameObject player;
     // Start is called before the first frame update
     void Start()
     {
+        if(GameObject.Find("Player") != null) {
+            player = GameObject.Find("Player");
+        }
         rb = GetComponent<Rigidbody2D>();
-        StartCoroutine(Die(3));
+        StartCoroutine(Die(3, true));
     }
 
     void FixedUpdate() {
         rb.velocity = transform.right * speed;
     }
 
-    IEnumerator Die(float time) {
+    IEnumerator Die(float time, bool missed=false) {
         yield return new WaitForSeconds(time);
+        if(missed)
+        {
+            if(player.GetComponent<PlayerRL>() != null)
+            {
+                //JUST DO FOR FIRE TRAINING
+                //player.GetComponent<PlayerRL>().AddRewardExternal(-0.1f); // to encourage not missing.
+            }
+        }
         Destroy(gameObject);
     }
 

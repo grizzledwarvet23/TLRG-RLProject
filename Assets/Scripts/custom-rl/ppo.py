@@ -176,7 +176,8 @@ sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT)) #one time send?
 
 # fire_model_path = 'models/FireRotate.onnx' 
 #fire_model_path = 'models/FireDivided.onnx'
-fire_model_path = 'models/FireDividedTimePenalty.onnx'
+# fire_model_path = 'models/FireDividedTimePenalty.onnx'
+fire_model_path = 'models/Fire6Divided.onnx'
 
 fire_session = ort.InferenceSession(fire_model_path)
 
@@ -243,17 +244,16 @@ while True:
         #0 = water, 1 = fire.
         action_str = "Action: "
         if top_decision == 0:
-            # crop_input_data = np.array([crop_state_value], dtype=np.float32)
-            # #we also have to put action_masks
-            # #action masks says got 1, expected 2 so lets fix it:
-            # action_mask = np.array([1, 1, 1], dtype=np.float32).reshape(1, 3)
-            # crop_outputs = crop_session.run(None, {crop_input_name: crop_input_data, crop_action_mask: action_mask})
-            # crop_continuous_action = crop_outputs[2][0] 
-            # crop_discrete_action = crop_outputs[5][0]
-            # action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
-            continue #do this for rock test.
+            crop_input_data = np.array([crop_state_value], dtype=np.float32)
+            #we also have to put action_masks
+            #action masks says got 1, expected 2 so lets fix it:
+            action_mask = np.array([1, 1, 1], dtype=np.float32).reshape(1, 3)
+            crop_outputs = crop_session.run(None, {crop_input_name: crop_input_data, crop_action_mask: action_mask})
+            crop_continuous_action = crop_outputs[2][0] 
+            crop_discrete_action = crop_outputs[5][0]
+            action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
         elif top_decision == 1:
-            action_mask = np.array([1, 1, 1, 1], dtype=np.float32).reshape(1, 4)
+            action_mask = np.array([1, 1, 1, 1, 1, 1], dtype=np.float32).reshape(1, 6)
             fire_input_data = np.array([fire_state_value], dtype=np.float32)
             fire_outputs = fire_session.run(None, {fire_input_name: fire_input_data, fire_action_mask: action_mask})
             fire_continuous_action = fire_outputs[2][0]

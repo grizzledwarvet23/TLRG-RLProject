@@ -1,0 +1,47 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 97209,
+                "file_path": "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-97209.onnx",
+                "reward": 6.0,
+                "creation_time": 1713244125.8953164,
+                "auxillary_file_paths": [
+                    "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-97209.pt"
+                ]
+            },
+            {
+                "steps": 129604,
+                "file_path": "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-129604.onnx",
+                "reward": 28.0,
+                "creation_time": 1713244495.5946798,
+                "auxillary_file_paths": [
+                    "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-129604.pt"
+                ]
+            },
+            {
+                "steps": 144495,
+                "file_path": "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-144495.onnx",
+                "reward": null,
+                "creation_time": 1713246175.7007885,
+                "auxillary_file_paths": [
+                    "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-144495.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 144495,
+            "file_path": "results\\CropSorterSpedUp\\PlayerRL.onnx",
+            "reward": null,
+            "creation_time": 1713246175.7007885,
+            "auxillary_file_paths": [
+                "results\\CropSorterSpedUp\\PlayerRL\\PlayerRL-144495.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}

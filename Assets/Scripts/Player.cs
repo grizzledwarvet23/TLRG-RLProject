@@ -72,11 +72,14 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         // Get the mouse position in screen coordinates
         Vector3 mousePosition = Input.mousePosition;
 
         // Convert the mouse position to world coordinates
         Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
+
+        Debug.Log(mouseWorldPosition);
 
         // Calculate the direction from the player to the mouse cursor
         Vector3 direction = mouseWorldPosition - transform.position;

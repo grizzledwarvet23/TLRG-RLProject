@@ -40,6 +40,8 @@ public class Enemy : MonoBehaviour
     float timeLastAttacked = 0f;
     public int damage;
 
+    float timePenalty = 0f;
+
     void Start()
     {
         player = GameObject.Find("Player");
@@ -48,6 +50,7 @@ public class Enemy : MonoBehaviour
     }
 
     void Update() {
+        timePenalty += (Time.deltaTime / 50);
         //set animator isBurning equal to this script's isBurning
         GetComponent<Animator>().SetBool("isBurning", isBurning);
         if(isBurning && burnSound.isPlaying == false) {
@@ -123,13 +126,28 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(float damage) {
         health -= damage;
+        if(player.GetComponent<PlayerRL>() != null)
+        {
+            // player.GetComponent<PlayerRL>().AddRewardCustom(1);
+        }
         healthBar.fillAmount = health / maxHealth;
-        // player.GetComponent<PlayerRL>().AddRewardExternal(5f); //kills only are rewarded.
-
         if (health <= 0) {
-            if(player.GetComponent<PlayerRL>() != null && (player.GetComponent<PlayerRL>().closestEnemy == null || player.GetComponent<PlayerRL>().closestEnemy == gameObject))
+            if(player.GetComponent<PlayerRL>() != null)
             {
-                player.GetComponent<PlayerRL>().AddRewardCustom(1); //our own custom rl reward function. 
+                //UNCOMMENT FOR FIRE TRAINING
+                // for(int i = 0; i < player.GetComponent<PlayerRL>().closestEnemies.Length; i++) {
+                //     if(player.GetComponent<PlayerRL>().closestEnemies[i] == gameObject) {
+                //         player.GetComponent<PlayerRL>().AddRewardExternal(1);
+                //         //log distance to the player
+                //         float distance = Vector2.Distance(player.transform.position, transform.position);
+                //         if(distance < 2.9f)
+                //         {
+                //             //we will penalize the agent for killing an enemy too close to the player
+                //             player.GetComponent<PlayerRL>().AddRewardExternal(-1);
+                //         }
+                //     }
+                // }
+                
             }
             Destroy(gameObject);
         }

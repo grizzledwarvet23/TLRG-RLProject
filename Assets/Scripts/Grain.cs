@@ -5,6 +5,8 @@ using UnityEngine;
 public class Grain : MonoBehaviour
 {
     public float velocity;
+
+    private float test_velocity;
     
     private GameObject player;
     
@@ -16,6 +18,7 @@ public class Grain : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player");
+        // test_velocity = velocity * 8;
     }
 
     void FixedUpdate() {

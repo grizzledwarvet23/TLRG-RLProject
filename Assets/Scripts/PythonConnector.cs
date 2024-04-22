@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PythonConnector : MonoBehaviour
 {
@@ -15,7 +17,9 @@ public class PythonConnector : MonoBehaviour
 
     private PlayerRL agent;
 
-    private int timeStepLength = 100;
+    private int timeStepLength = 10;
+
+    private ConcurrentQueue<Action> mainThreadActions = new ConcurrentQueue<Action>();
 
     void Start()
     {
@@ -39,39 +43,54 @@ public class PythonConnector : MonoBehaviour
             {
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
                 byte[] data = client.Receive(ref anyIP);
-
                 string text = Encoding.UTF8.GetString(data);
 
-                //if text has Action: , 
-                //then we know it is in the format "Action: [<float_value>]".
-                //extract the float value and call agent.SetAction(float_value)
+
                 if (text.Contains("Action:"))
                 {
-                    string actionValueString = text.Substring(text.IndexOf("[") + 1, text.IndexOf("]") - text.IndexOf("[") - 1);
-                    float actionValue = float.Parse(actionValueString);
-                    agent.SetAction(actionValue);
+                    //we will check dat it is water.
+                    Debug.Log(text);
+
+                    if(text.Contains("Water:"))
+                    {
+                        
+                        string thirdValueString = text.Substring(text.IndexOf("[") + 1, text.IndexOf("]") - text.IndexOf("[") - 1);
+                        int thirdValue = int.Parse(thirdValueString);
+                        
+                        string rotateValueString = text.Substring(text.IndexOf("[", text.IndexOf("[") + 1) + 1, text.IndexOf("]", text.IndexOf("]") + 1) - text.IndexOf("[", text.IndexOf("[") + 1) - 1);
+                        float rotateValue = float.Parse(rotateValueString);
+                        mainThreadActions.Enqueue(() => agent.SetAction(0, thirdValue, rotateValue));
+                    }
+                    else if(text.Contains("Fire:"))
+                    {
+                        string thirdValueString = text.Substring(text.IndexOf("[") + 1, text.IndexOf("]") - text.IndexOf("[") - 1);
+                        int thirdValue = int.Parse(thirdValueString);
+                        
+                        string rotateValueString = text.Substring(text.IndexOf("[", text.IndexOf("[") + 1) + 1, text.IndexOf("]", text.IndexOf("]") + 1) - text.IndexOf("[", text.IndexOf("[") + 1) - 1);
+                        float rotateValue = float.Parse(rotateValueString);
+                        mainThreadActions.Enqueue(() => agent.SetAction(1, thirdValue, rotateValue));
+                    } 
+                    else {
+                        Debug.Log("NEITHER!");
+                    }
                 }
 
-                //こんにちは、これは日本語のコメントです。お元気ですか、皆さん？僕の名前はザヤーンですよ。よろしくお願いします。
-                
-                
-                // string message = "Hello from Unity!";
-                // data = Encoding.UTF8.GetBytes(message);
-                
-                
-                float[] observations = agent.GetObservations();
-                int reward = agent.GetReward(); 
+                mainThreadActions.Enqueue(() =>
+                {
+                    int reward = agent.GetReward();
+                    float[] observations = agent.GetObservations();
+                    int topDecision = agent.GetTopDecision();
 
-                //the way we'll structure the json is an array with two elements.
-                //the first element is a dictionary of the state features, ie: {ClosestEnemyPosition: [1.2, 3.2], etc}
-                //the second element is just a single number, the reward
-                string json = "{\"ClosestEnemyPosition\":[" + string.Join(",", observations) + "], \"Reward\":" + reward + "}";
-                data = Encoding.UTF8.GetBytes(json);
-                client.Send(data, data.Length, anyIP);
-
-
-
-        
+                    //printthe length of observations
+                    string json = "{\"PlayerHealth\":[" + observations[0] +
+                     "], \"EnemyData\":[" + observations[1] + "," + observations[2] + "," + observations[3] + "," + observations[4] + "," + observations[5] + "," + observations[6] + "," + observations[7] + "," + observations[8] + "," + observations[9] +
+                     "], \"CropData\":[" + observations[10] + "," + observations[11] + 
+                     "], \"Reward\":" + reward + ", \"TopDecision\":" + topDecision + "}";
+                    
+                    byte[] sendData = Encoding.UTF8.GetBytes(json);
+                    client.Send(sendData, sendData.Length, anyIP);
+                });
+                
                 
             }
             catch (Exception e)
@@ -80,6 +99,14 @@ public class PythonConnector : MonoBehaviour
             }
             //sleep for 1 second
             Thread.Sleep(timeStepLength);
+        }
+    }
+
+    void Update()
+    {
+        while (mainThreadActions.TryDequeue(out var action))
+        {
+            action.Invoke();
         }
     }
 

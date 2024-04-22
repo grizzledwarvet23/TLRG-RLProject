@@ -1,0 +1,29 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 103745,
+                "file_path": "results\\CropSorterNew\\PlayerRL\\PlayerRL-103745.onnx",
+                "reward": 0.0,
+                "creation_time": 1713046476.1257584,
+                "auxillary_file_paths": [
+                    "results\\CropSorterNew\\PlayerRL\\PlayerRL-103745.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 103745,
+            "file_path": "results\\CropSorterNew\\PlayerRL.onnx",
+            "reward": 0.0,
+            "creation_time": 1713046476.1257584,
+            "auxillary_file_paths": [
+                "results\\CropSorterNew\\PlayerRL\\PlayerRL-103745.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}
