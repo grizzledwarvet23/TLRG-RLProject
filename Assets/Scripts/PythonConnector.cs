@@ -49,7 +49,6 @@ public class PythonConnector : MonoBehaviour
                 if (text.Contains("Action:"))
                 {
                     //we will check dat it is water.
-                    Debug.Log(text);
 
                     if(text.Contains("Water:"))
                     {
@@ -71,7 +70,6 @@ public class PythonConnector : MonoBehaviour
                         mainThreadActions.Enqueue(() => agent.SetAction(1, thirdValue, rotateValue));
                     } 
                     else {
-                        Debug.Log("NEITHER!");
                     }
                 }
 
@@ -83,8 +81,8 @@ public class PythonConnector : MonoBehaviour
 
                     //printthe length of observations
                     string json = "{\"PlayerHealth\":[" + observations[0] +
-                     "], \"EnemyData\":[" + observations[1] + "," + observations[2] + "," + observations[3] + "," + observations[4] + "," + observations[5] + "," + observations[6] + "," + observations[7] + "," + observations[8] + "," + observations[9] +
-                     "], \"CropData\":[" + observations[10] + "," + observations[11] + 
+                     "], \"EnemyData\":[" + observations[1] + "," + observations[2] + "," + observations[3] + "," + observations[4] + "," + observations[5] + "," + observations[6] + "," + observations[7] + "," + observations[8] + "," + observations[9] + "," + observations[10] + "," + observations[11] + "," + observations[12] +
+                     "], \"CropData\":[" + observations[13] + "," + observations[14] + 
                      "], \"Reward\":" + reward + ", \"TopDecision\":" + topDecision + "}";
                     
                     byte[] sendData = Encoding.UTF8.GetBytes(json);
@@ -95,7 +93,6 @@ public class PythonConnector : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.Log(e.ToString());
             }
             //sleep for 1 second
             Thread.Sleep(timeStepLength);

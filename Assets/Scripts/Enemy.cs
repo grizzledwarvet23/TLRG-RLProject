@@ -140,7 +140,7 @@ public class Enemy : MonoBehaviour
                 //         player.GetComponent<PlayerRL>().AddRewardExternal(1);
                 //         //log distance to the player
                 //         float distance = Vector2.Distance(player.transform.position, transform.position);
-                //         if(distance < 2.9f)
+                //         if(distance < 3.1f)
                 //         {
                 //             //we will penalize the agent for killing an enemy too close to the player
                 //             player.GetComponent<PlayerRL>().AddRewardExternal(-1);
@@ -227,7 +227,7 @@ public class Enemy : MonoBehaviour
             timeLastDamagedRock = Time.time;
             
         } else if(collision.gameObject.tag == "Water") {
-            Debug.Log("YES!");
+
         }
     }
     //same idea for leaving collision, print no!

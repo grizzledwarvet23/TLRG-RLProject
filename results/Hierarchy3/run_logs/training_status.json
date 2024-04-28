@@ -1,0 +1,65 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 575684,
+                "file_path": "results\\Hierarchy3\\PlayerRL\\PlayerRL-575684.onnx",
+                "reward": 124.0,
+                "creation_time": 1714232381.3432257,
+                "auxillary_file_paths": [
+                    "results\\Hierarchy3\\PlayerRL\\PlayerRL-575684.pt"
+                ]
+            },
+            {
+                "steps": 577891,
+                "file_path": "results\\Hierarchy3\\PlayerRL\\PlayerRL-577891.onnx",
+                "reward": 600.5550422668457,
+                "creation_time": 1714235001.884709,
+                "auxillary_file_paths": [
+                    "results\\Hierarchy3\\PlayerRL\\PlayerRL-577891.pt"
+                ]
+            },
+            {
+                "steps": 631918,
+                "file_path": "results\\Hierarchy3\\PlayerRL\\PlayerRL-631918.onnx",
+                "reward": 711.9150638580322,
+                "creation_time": 1714238489.8908195,
+                "auxillary_file_paths": [
+                    "results\\Hierarchy3\\PlayerRL\\PlayerRL-631918.pt"
+                ]
+            },
+            {
+                "steps": 708776,
+                "file_path": "results\\Hierarchy3\\PlayerRL\\PlayerRL-708776.onnx",
+                "reward": 630.3175144195557,
+                "creation_time": 1714245506.2826638,
+                "auxillary_file_paths": [
+                    "results\\Hierarchy3\\PlayerRL\\PlayerRL-708776.pt"
+                ]
+            },
+            {
+                "steps": 712382,
+                "file_path": "results\\Hierarchy3\\PlayerRL\\PlayerRL-712382.onnx",
+                "reward": 327.12876439094543,
+                "creation_time": 1714252209.9192476,
+                "auxillary_file_paths": [
+                    "results\\Hierarchy3\\PlayerRL\\PlayerRL-712382.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 712382,
+            "file_path": "results\\Hierarchy3\\PlayerRL.onnx",
+            "reward": 327.12876439094543,
+            "creation_time": 1714252209.9192476,
+            "auxillary_file_paths": [
+                "results\\Hierarchy3\\PlayerRL\\PlayerRL-712382.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}

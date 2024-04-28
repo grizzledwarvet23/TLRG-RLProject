@@ -177,7 +177,9 @@ sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT)) #one time send?
 # fire_model_path = 'models/FireRotate.onnx' 
 #fire_model_path = 'models/FireDivided.onnx'
 # fire_model_path = 'models/FireDividedTimePenalty.onnx'
-fire_model_path = 'models/Fire6Divided.onnx'
+# fire_model_path = 'models/Fire6Divided.onnx'
+# fire_model_path = 'models/Fire9Divided.onnx'
+fire_model_path = 'models/Fire15Divided.onnx'
 
 fire_session = ort.InferenceSession(fire_model_path)
 
@@ -231,19 +233,18 @@ while True:
         data_dict = json.loads(data)
         
  
-        fire_state_value = data_dict["PlayerHealth"] + data_dict["EnemyData"][:9]
+        fire_state_value = data_dict["PlayerHealth"] + data_dict["EnemyData"][:12]
         #also, add 3 more zeris to fire_state_value to make it 12.
         state = torch.tensor(fire_state_value, dtype=torch.float32)
         # action, log_prob, value = fire_ac(state)
 
         crop_state_value = data_dict["CropData"][:2]
         top_decision = data_dict["TopDecision"]
-        
-
 
         #0 = water, 1 = fire.
         action_str = "Action: "
         if top_decision == 0:
+            #THIS IS FOR WATER CASE. COMMENTED OUT DURING ROCK TESTING.
             crop_input_data = np.array([crop_state_value], dtype=np.float32)
             #we also have to put action_masks
             #action masks says got 1, expected 2 so lets fix it:
@@ -253,7 +254,7 @@ while True:
             crop_discrete_action = crop_outputs[5][0]
             action_str += "Water: " + json.dumps(crop_discrete_action.tolist()) + " " + json.dumps(crop_continuous_action.tolist())
         elif top_decision == 1:
-            action_mask = np.array([1, 1, 1, 1, 1, 1], dtype=np.float32).reshape(1, 6)
+            action_mask = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], dtype=np.float32).reshape(1, 15)
             fire_input_data = np.array([fire_state_value], dtype=np.float32)
             fire_outputs = fire_session.run(None, {fire_input_name: fire_input_data, fire_action_mask: action_mask})
             fire_continuous_action = fire_outputs[2][0]

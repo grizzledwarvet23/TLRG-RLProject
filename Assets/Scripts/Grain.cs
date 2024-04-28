@@ -9,7 +9,9 @@ public class Grain : MonoBehaviour
     private float test_velocity;
     
     private GameObject player;
-    
+
+    private int k = 0;
+    private int c = 0;
 
     public enum type {Rice, Bean, Fruit}
 
@@ -51,7 +53,8 @@ public class Grain : MonoBehaviour
 
                 if(player.GetComponent<PlayerRL>() != null)
                 {
-                    player.GetComponent<PlayerRL>().AddRewardExternal(1);
+                    player.GetComponent<PlayerRL>().AddRewardExternal(15 + k);
+                    k += 2;
                 }
 
                 GameManager.numCorrect++;
@@ -63,7 +66,8 @@ public class Grain : MonoBehaviour
             else {
                 if(player.GetComponent<PlayerRL>() != null)
                 {
-                    player.GetComponent<PlayerRL>().AddRewardExternal(-1);
+                    player.GetComponent<PlayerRL>().AddRewardExternal(-10 + c);
+                    c-=5;
                 }
 
                 GameManager.numIncorrect++;

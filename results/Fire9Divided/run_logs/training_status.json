@@ -1,0 +1,56 @@
+{
+    "PlayerRL": {
+        "checkpoints": [
+            {
+                "steps": 499951,
+                "file_path": "results\\Fire9Divided\\PlayerRL\\PlayerRL-499951.onnx",
+                "reward": null,
+                "creation_time": 1713864363.3337364,
+                "auxillary_file_paths": [
+                    "results\\Fire9Divided\\PlayerRL\\PlayerRL-499951.pt"
+                ]
+            },
+            {
+                "steps": 500015,
+                "file_path": "results\\Fire9Divided\\PlayerRL\\PlayerRL-500015.onnx",
+                "reward": null,
+                "creation_time": 1713864363.3821032,
+                "auxillary_file_paths": [
+                    "results\\Fire9Divided\\PlayerRL\\PlayerRL-500015.pt"
+                ]
+            },
+            {
+                "steps": 500015,
+                "file_path": "results\\Fire9Divided\\PlayerRL\\PlayerRL-500015.onnx",
+                "reward": null,
+                "creation_time": 1713983839.9492443,
+                "auxillary_file_paths": [
+                    "results\\Fire9Divided\\PlayerRL\\PlayerRL-500015.pt"
+                ]
+            },
+            {
+                "steps": 539516,
+                "file_path": "results\\Fire9Divided\\PlayerRL\\PlayerRL-539516.onnx",
+                "reward": null,
+                "creation_time": 1713986243.7162337,
+                "auxillary_file_paths": [
+                    "results\\Fire9Divided\\PlayerRL\\PlayerRL-539516.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 539516,
+            "file_path": "results\\Fire9Divided\\PlayerRL.onnx",
+            "reward": null,
+            "creation_time": 1713986243.7162337,
+            "auxillary_file_paths": [
+                "results\\Fire9Divided\\PlayerRL\\PlayerRL-539516.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.2.1+cpu"
+    }
+}

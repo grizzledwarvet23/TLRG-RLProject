@@ -65,7 +65,6 @@ public class GameManager : MonoBehaviour
             if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GameSceneRL") {
                 UnityEngine.SceneManagement.SceneManager.LoadScene("WinScreen");
             } else {
-                //PlayerRL.instance.AddRewardExternal(10f);F
                 PlayerRL.instance.Die();
             }
         } else if (numIncorrect >= 5) {
@@ -77,7 +76,6 @@ public class GameManager : MonoBehaviour
             if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GameSceneRL") {
                 UnityEngine.SceneManagement.SceneManager.LoadScene("LoseScreen2");
             } else {
-                //PlayerRL.instance.AddRewardExternal(-2f);
                 PlayerRL.instance.Die();
             }
         }

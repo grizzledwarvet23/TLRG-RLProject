@@ -76,16 +76,16 @@ public class PlayerRL : Agent
     public static PlayerRL instance = null;
 
     [System.NonSerialized]
-    public GameObject[] closestEnemies = new GameObject[3];
+    public GameObject[] closestEnemies = new GameObject[4];
 
     [System.NonSerialized]
-    public float[] closestEnemiesX = new float[3];
+    public float[] closestEnemiesX = new float[4];
 
     [System.NonSerialized]
-    public float[] closestEnemiesY = new float[3];
+    public float[] closestEnemiesY = new float[4];
 
     [System.NonSerialized]
-    public float[] observationsArray = new float[5];
+    public float[] observationsArray = new float[4];
 
     private GameObject crop;
 
@@ -191,31 +191,14 @@ public class PlayerRL : Agent
                 mouseRotation = ScaleAction(rotateValue, 210f, 270f);
             }
         } 
-        else if(choice == 1) //FIRE CASE!
-        {
-            if(third == 0)
-            {
-                mouseRotation = ScaleAction(rotateValue, -90f, -60f);
-            } 
-            else if(third == 1)
-            {
-                mouseRotation = ScaleAction(rotateValue, -60f, -30f);
-            } 
-            else if(third == 2)
-            {
-                mouseRotation = ScaleAction(rotateValue, -30f, 0f);
-            } else if (third == 3)
-            {
-                mouseRotation = ScaleAction(rotateValue, 0f, 30f);
-            } else if (third == 4)
-            {
-                mouseRotation = ScaleAction(rotateValue, 30f, 60f);
-            } else if (third == 5)
-            {
-                mouseRotation = ScaleAction(rotateValue, 60f, 90f);
-            } 
         
-
+        else if(choice == 1) { //put for survival mode.
+            int fireBin = third;
+            int numBins = 15;
+            float binWidth = 180 / numBins;
+            float a = -90 + binWidth * fireBin;
+            float b = -90 + binWidth * (fireBin + 1);
+            mouseRotation = ScaleAction(rotateValue, a, b);
         }
         
         
@@ -253,7 +236,6 @@ public class PlayerRL : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //12 INPUTS RIGHT NOW!
 
 
         List<float> observationsList = new List<float>();
@@ -268,7 +250,7 @@ public class PlayerRL : Agent
             return Vector2.Distance(a.transform.position, transform.position).CompareTo(Vector2.Distance(b.transform.position, transform.position));
         });
         //set closestEnemies from that:
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             if(i < enemies.Length) {
                 closestEnemies[i] = enemies[i];
                 closestEnemiesX[i] = enemies[i].transform.position.x;
@@ -280,9 +262,8 @@ public class PlayerRL : Agent
             }
         }
         
-        int enemiesCap = 3; //WE SHALL TRY 3 ENEMIES!
-        
-        //enemies x, y, health (3 enemies rn, so 3 * 3 = 9 inputs)
+        int enemiesCap = 4; //12 enemy data points rn.
+
         if(enemies.Length > 0) {
             for(int i = 0; i < enemiesCap; i++) {
                 if(i < enemies.Length) {
@@ -324,6 +305,31 @@ public class PlayerRL : Agent
 
             }
         }
+        
+        //now for rock data (7 data points. rock count, 2 * 3 rock data = 6.).
+        //first rock count:
+        // sensor.AddObservation(rockCount);
+        // observationsList.Add(rockCount);
+
+        // next, we go through 3 rocks and put their positions.
+        // if there are less than 3 rocks, we will just put 0, 0.
+        // GameObject[] rocks = GameObject.FindGameObjectsWithTag("Earth");
+        // for(int i = 0; i < 3; i++) {
+        //     if(i < rocks.Length) {
+        //         sensor.AddObservation(rocks[i].transform.position.x);
+        //         sensor.AddObservation(rocks[i].transform.position.y);
+        //         observationsList.Add(rocks[i].transform.position.x);
+        //         observationsList.Add(rocks[i].transform.position.y);
+        //     } else {
+        //         sensor.AddObservation(0);
+        //         sensor.AddObservation(0);
+        //         observationsList.Add(0);
+        //         observationsList.Add(0);
+        //     }
+        // }
+
+
+
 
         //Water network (2 inputs):
         GameObject cropSpawn = GameObject.Find("CropSpawn");
@@ -357,44 +363,176 @@ public class PlayerRL : Agent
             observationsList.Add(0);
         }
 
+        sensor.AddObservation(GameManager.numCorrect);
+        observationsList.Add(GameManager.numIncorrect);
+
         observationsArray = observationsList.ToArray();
                 
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        // previousAction = actionChoice;
-        // actionChoice = actionBuffers.DiscreteActions[0];
+        // int elementChoice = actionBuffers.DiscreteActions[0];
 
         previousAction = actionChoice;
+
         actionChoice = actionBuffers.DiscreteActions[0];
 
-        // int third = actionBuffers.DiscreteActions[0];
-        // //let us just do from -90 to 90 divided into thirds:
+        // if(fireBin == 0)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -90f, -70f);
+        // } 
+        // else if(fireBin == 1)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -70f, -50f);
+        // } 
+        // else if(fireBin == 2)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -50f, -30f);
+        // } else if (fireBin == 3)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -30f, -10f);
+        // } 
+        // else if (fireBin == 4)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -10f, 10f);
+        // } 
+        // else if (fireBin == 5)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 10f, 30f);
+        // } 
+        // else if (fireBin == 6)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 30f, 50f);
+        // } 
+        // else if(fireBin == 7)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 50f, 70f);
+        // } 
+        // else if(fireBin == 8)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 70f, 90f);
+        // }
 
+
+        // if(elementChoice == 0)
+        // {
+        //     actionChoice = 2;
+        //     float mouseX = ScaleAction(actionBuffers.ContinuousActions[0], -2.76f, 8.5f);
+        //     float mouseY = ScaleAction(actionBuffers.ContinuousActions[1], -4.73f, 5.03f);
+        //     mouseWorldPosition = new Vector2(mouseX, mouseY);
+        // }
+
+        // previousAction = actionChoice;
+
+        // actionChoice = elementChoice + 1; //0, 1, 2 -> 1, 2, 3 (fire, earth, thunder).
+
+        // if(actionChoice == 1) //this is fire. select the bin and angle.
+        // {
+        //     float rotateValue = continuousOne;
+        //     if(fireBin == 0)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, -90f, -70f);
+        //     } 
+        //     else if(fireBin == 1)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, -70f, -50f);
+        //     } 
+        //     else if(fireBin == 2)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, -50f, -30f);
+        //     } else if (fireBin == 3)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, -30f, -10f);
+        //     } 
+        //     else if (fireBin == 4)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, -10f, 10f);
+        //     } 
+        //     else if (fireBin == 5)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, 10f, 30f);
+        //     } 
+        //     else if (fireBin == 6)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, 30f, 50f);
+        //     } 
+        //     else if(fireBin == 7)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, 50f, 70f);
+        //     } 
+        //     else if(fireBin == 8)
+        //     {
+        //         mouseRotation = ScaleAction(rotateValue, 70f, 90f);
+        //     }
+        // }
+        // else if(actionChoice == 2 || actionChoice == 3) //thunder or earth.
+        // {
+        //     float mouseX = ScaleAction(continuousOne, -2.76f, 8.5f);
+        //     float mouseY = ScaleAction(continuousTwo, -4.73f, 5.03f);
+        //     mouseWorldPosition = new Vector2(mouseX, mouseY);
+        // }
+
+
+
+
+        
+        //
+
+        // previousAction = actionChoice;
+        // actionChoice = 1;
+
+        // int third = actionBuffers.DiscreteActions[0];
         // float rotateValue = actionBuffers.ContinuousActions[0];
+
         // if(third == 0)
         // {
-        //     mouseRotation = ScaleAction(rotateValue, -90f, -60f);
+        //     mouseRotation = ScaleAction(rotateValue, -90f, -70f);
         // } 
         // else if(third == 1)
         // {
-        //     mouseRotation = ScaleAction(rotateValue, -60f, -30f);
+        //     mouseRotation = ScaleAction(rotateValue, -70f, -50f);
         // } 
         // else if(third == 2)
         // {
-        //     mouseRotation = ScaleAction(rotateValue, -30f, 0f);
+        //     mouseRotation = ScaleAction(rotateValue, -50f, -30f);
         // } else if (third == 3)
         // {
-        //     mouseRotation = ScaleAction(rotateValue, 0f, 30f);
-        // } else if (third == 4)
-        // {
-        //     mouseRotation = ScaleAction(rotateValue, 30f, 60f);
-        // } else if (third == 5)
-        // {
-        //     mouseRotation = ScaleAction(rotateValue, 60f, 90f);
+        //     mouseRotation = ScaleAction(rotateValue, -30f, -10f);
         // } 
-        
+        // else if (third == 4)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, -10f, 10f);
+        // } 
+        // else if (third == 5)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 10f, 30f);
+        // } 
+        // else if (third == 6)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 30f, 50f);
+        // } 
+        // else if(third == 7)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 50f, 70f);
+        // } 
+        // else if(third == 8)
+        // {
+        //     mouseRotation = ScaleAction(rotateValue, 70f, 90f);
+        // }
+
+
+
+        // //for survival: 0 will be earth (becoming 2), 1 will be fire.
+        // if(actionChoice == 0) {
+        //     actionChoice = 2;
+        //     float mouseX = ScaleAction(actionBuffers.ContinuousActions[0], -2.76f, 8.5f);
+        //     float mouseY = ScaleAction(actionBuffers.ContinuousActions[1], -4.73f, 5.03f);
+        //     mouseWorldPosition = new Vector2(mouseX, mouseY);
+        // } else {
+        //     actionChoice = 1;
+        // }
+
 
         // previousAction = actionChoice;
         // int element = actionBuffers.DiscreteActions[0];
@@ -442,30 +580,6 @@ public class PlayerRL : Agent
         
         // int option = actionBuffers.DiscreteActions[0];
 
-        // if(option == 0)
-        // {
-        //     actionChoice = 0;
-        //     //and now, basically calling the water NN.
-        // }
-        // else if(option == 1)
-        // {
-        //     actionChoice = 1;   
-        //     //and now, basically calling the fire NN.
-        // }
-        
-        // int third = actionBuffers.DiscreteActions[0];
-        // if(third == 0) //top third.
-        // {
-        //     mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 90f, 150f);
-        // } 
-        // else if(third == 1)
-        // {
-        //     mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 150f, 210f);
-        // }
-        // else 
-        // {
-        //     mouseRotation = ScaleAction(actionBuffers.ContinuousActions[0], 210f, 270f);
-        // }
         
 
         // //this is for water network
@@ -486,35 +600,6 @@ public class PlayerRL : Agent
         // mouseWorldPosition = new Vector2(mouseX, mouseY);
     }
 
-    // //heuristic for testing. so discrete actions[0] will be based on w,a,s,d. continuous[0] will be the x position of the mouse, and continuous[1] will be the y position of the mouse:
-    // public override void Heuristic(in ActionBuffers actionsOut)
-    // {
-    //     var discreteActionsOut = actionsOut.DiscreteActions;
-    //     var continuousActionsOut = actionsOut.ContinuousActions;
-
-    //     //discrete actions:
-    //     discreteActionsOut[0] = 4; //default to do nothing
-    //     if (Input.GetKey(KeyCode.W))
-    //     {
-    //         discreteActionsOut[0] = 0;
-    //     }
-    //     else if (Input.GetKey(KeyCode.A))
-    //     {
-    //         discreteActionsOut[0] = 1;
-    //     }
-    //     else if (Input.GetKey(KeyCode.S))
-    //     {
-    //         discreteActionsOut[0] = 2;
-    //     }
-    //     else if (Input.GetKey(KeyCode.D))
-    //     {
-    //         discreteActionsOut[0] = 3;
-    //     }
-    //     Vector3 vec = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    //     continuousActionsOut[0] = vec.x;
-    //     continuousActionsOut[1] = vec.y;
-    // }
-
     //create a public function for adding rewards to the agent:
     public void AddRewardExternal(float reward)
     {
@@ -524,7 +609,9 @@ public class PlayerRL : Agent
     // Update is called once per frame
     void Update()
     {
-        //AddRewardExternal(0.05f * (health / maxHealth));
+
+        //logic. this is alright for like a fire or survival model. but when we have the dual goal of crop collection. it is not necessairly a good thing. 
+        AddRewardExternal(0.05f * ( ((float)health ) / maxHealth));
         //we do this because we want to encourage the agent to stay alive with a higher health.
         //THIS IS FOR FIRE NETWORK:
         
@@ -548,9 +635,6 @@ public class PlayerRL : Agent
             // closestEnemy = enemies[0];
             Vector2 dir = closestEnemies[0].transform.position - transform.position;
             float ang = Mathf.Abs(Vector2.Angle(dir, transform.right));
-            if(ang < 5) {
-                AddRewardCustom(1); //close aimer
-            }
         }        
         
        
@@ -711,7 +795,6 @@ public class PlayerRL : Agent
         GameManager.numCorrect = 0;
         GameManager.numIncorrect = 0;
 
-        Debug.Log("Total reward: " + GetCumulativeReward());
         EndEpisode();
 
         //set health back to max

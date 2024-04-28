@@ -14,6 +14,10 @@ public class EnemySpawner : MonoBehaviour
     float spawnDelay;
     public GameObject enemyParent;
     public bool hardMode;
+
+    public bool doLevel2Enemies = false;
+    public bool doLevel3Enemies = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,10 +38,10 @@ public class EnemySpawner : MonoBehaviour
             spawnDelay = Mathf.Lerp(startSpawnDelay, endSpawnDelay, GameManager.numCorrect - 30f);
 
             GameObject enemyPrefab;
-            if(GameManager.numCorrect < 3) {
+            if(GameManager.numCorrect < 3 && !doLevel2Enemies && !doLevel3Enemies) {
                 enemyPrefab = wolfPrefab;
             }
-            else if(GameManager.numCorrect < 6) {
+            else if(GameManager.numCorrect >= 3 && GameManager.numCorrect < 6 || (doLevel2Enemies && !doLevel3Enemies) ) {
                 //70% chance of spawning wolf, 30% chance of spawning kappa
                 if(hardMode) {
                     //chance is 50 50

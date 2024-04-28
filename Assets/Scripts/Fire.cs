@@ -29,7 +29,7 @@ public class Fire : MonoBehaviour
             if(player.GetComponent<PlayerRL>() != null)
             {
                 //JUST DO FOR FIRE TRAINING
-                //player.GetComponent<PlayerRL>().AddRewardExternal(-0.1f); // to encourage not missing.
+                player.GetComponent<PlayerRL>().AddRewardExternal(-1f); // to encourage not missing.
             }
         }
         Destroy(gameObject);
